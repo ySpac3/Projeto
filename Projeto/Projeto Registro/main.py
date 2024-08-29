@@ -1,9 +1,9 @@
-from Functions import Strings as st
-from Functions import resfunctions as res
-import mysql.connector
+import pandas as pd
 
-st.tittle('Bem Vindo ao gerenciador')
+print('Bem Vindo ao gerenciador'.center(20))
+
 #sitema de login
+db = pd.read_csv('./data/data.csv')
 while True:
     try:
         r = int(input('O que deseja fazer?\nRegistrar - 1 Logar - 2 '))
@@ -25,14 +25,35 @@ while True:
                     erroChar = True
 
             if not erroChar:
-                res.resconfirmation(nome, senha, email)
+                if not db['email'].isin([email]).any():
+                    index = len(db['email'])
+                    db.loc[index, 'nome'] = nome
+                    db.loc[index, 'email'] = email
+                    db.loc[index, 'senha'] = senha
+
+                    db.to_csv('./data/data.csv', index=False)
+                else:
+                    print('Erro. Email já cadastrado')
             else:
                 print('Erro. Não é permitido caracteres especiais como : ";", ">", "<", ";", ":"')
         case 2:
-            nome = input('Digite o nome de usuário ')
+            # Fazer login pelo nome não é uma prática segura
+            email = input('Digite o email ')
             senha = input('Digite a senha do usuário ')
-            login = res.logconfirmantion(nome=nome, senha=senha)
+            
+            login = False
+            if db['email'].isin([email]).any():
+                pssword = db.loc[db['email'] == email, 'senha'].values[0]
+                if pssword == senha:
+                    login = True
+
+                else:
+                    print('Senha Incorreta')
+            
+            else:
+                print('Email não encontrado')
+        
             if login:
                 break
             else:
-                print('Não entrado, Verifique se o nome esta correto ou registre-se')
+                print('Não entrado, Verifique se o email esta correto ou registre-se')
