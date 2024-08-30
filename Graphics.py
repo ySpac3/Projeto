@@ -3,8 +3,6 @@ import customtkinter as ctk
 log = False
 
 def interface(users, passwords):
-
-    log = False
     #Criando a tela de Login
     login_window = ctk.CTk()
     login_window.geometry('350x300')
@@ -16,24 +14,22 @@ def interface(users, passwords):
     #Configurando as entradas
 
     user_entry = ctk.CTkEntry(login_window,
-                        placeholder_text="Usuário")
-    user_entry.pack(pady=20)
+                        placeholder_text="Usuário"
+                        ).pack()
     password_entry = ctk.CTkEntry(login_window,
                             placeholder_text="Senha",
                             show='*'
-                            )
-    password_entry.pack(pady=10)
+                            ).pack(pady=20)
     def logar():
-        nonlocal log, users, passwords
+        global log
         log = True
-        users = user_entry.get()
-        passwords = password_entry.get()
         login_window.destroy()
 
     btn_login = ctk.CTkButton(login_window,
                               text='Logar',
-                              command=logar)
-    btn_login.pack(pady=20)
+                              command=logar).pack(pady=20)
     login_window.mainloop()
     if log:
+        users = user_entry.get()
+        passwords = password_entry.get()
         return users, passwords
