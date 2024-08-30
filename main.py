@@ -1,59 +1,24 @@
-import pandas as pd
+from Functions import Strings as st
+from Functions import resfunctions as res
+import mysql.connector
 
-print('Bem Vindo ao gerenciador'.center(20))
-
+st.tittle('Bem Vindo ao gerenciador')
 #sitema de login
-db = pd.read_csv('./data/data.csv')
 while True:
     try:
         r = int(input('O que deseja fazer?\nRegistrar - 1 Logar - 2 '))
-    except TypeError: # Adicionei o Except Correto
+    except:
         print('Comando invalido tente novamente')
-
-    match r:
-        case 1:
-            # input() já retorna str
-            chars = [' ', ';', '>', '<', ';', ':'] # Caracteres especiais, que vão ajudar a tratar ataques de SQLInjection
-            nome = input('Digite seu nome ')
-            senha = input('Digite sua senha ')
-            email = input('Digite seu email ')
-            
-            # Sistema básico contra SQLInjection
-            erroChar = False
-            for inp in [nome, senha, email]:
-                if any(char in inp for char in chars):
-                    erroChar = True
-
-            if not erroChar:
-                if not db['email'].isin([email]).any():
-                    index = len(db['email'])
-                    db.loc[index, 'nome'] = nome
-                    db.loc[index, 'email'] = email
-                    db.loc[index, 'senha'] = senha
-
-                    db.to_csv('./data/data.csv', index=False)
-                else:
-                    print('Erro. Email já cadastrado')
-            else:
-                print('Erro. Não é permitido caracteres especiais como : ";", ">", "<", ";", ":"')
-        case 2:
-            # Fazer login pelo nome não é uma prática segura
-            email = input('Digite o email ')
-            senha = input('Digite a senha do usuário ')
-            
-            login = False
-            if db['email'].isin([email]).any():
-                pssword = db.loc[db['email'] == email, 'senha'].values[0]
-                if pssword == senha:
-                    login = True
-
-                else:
-                    print('Senha Incorreta')
-            
-            else:
-                print('Email não encontrado')
-        
-            if login:
-                break
-            else:
-                print('Não entrado, Verifique se o email esta correto ou registre-se')
+    if r == 1:
+        nome = str(input('Digite seu nome '))
+        senha = str(input('Digite sua senha '))
+        email = str(input('Digite seu email '))
+        res.resconfirmation(nome, senha, email)
+    if r == 2:
+        nome = str(input('Digite o nome de usuário '))
+        senha = str(input('Digite a senha do usuário '))
+        login = res.logconfirmantion(nome=nome, senha=senha)
+        if login:
+            break
+        else:
+            print('Não entrado, Verifique se o nome esta correto ou registre-se')
