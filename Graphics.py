@@ -62,6 +62,7 @@ class login_UI:
         if log:
             return self.email, self.passwords
         if reg:
+
             return self.email, self.passwords
     def incorrect_login(self):
         #declarando variaveis
