@@ -19,13 +19,14 @@ while True:
                 login = True
 
             else:
-                if email != None or senha != None:
+                # Ao usar uma string em um if ele já verifica se ela foi preenchida
+                if email or senha:
                     email, senha = G.login_UI().incorrect_login()
 
         else:
-            if email != None or senha != None:
+            if email or senha:
                 email, senha = G.login_UI().incorrect_login()
-            if email == None and senha == None:
+            if not email and senha:
                 break
 
         if login:
@@ -49,7 +50,8 @@ while True:
                             indexData = len(dataFrame['email'])
 
                             for i in range(len(excel)):
-                                dataFrame.loc[indexData, 'email'] = email
+                                # Alterado a coluna de indentificação, de email para nome
+                                dataFrame.loc[indexData, 'vendedor'] = input('Nome do Vendedor -> ')
                                 dataFrame.loc[indexData, 'vendas'] = excel.loc[i, 'vendas']
                                 dataFrame.loc[indexData, 'item'] = excel.loc[i, 'item']
                                 dataFrame.loc[indexData, 'comissao'] = excel.loc[i, 'comissao']
@@ -60,12 +62,32 @@ while True:
 
                         else:
                             print('Arquivo Não Existe')
+                    
+                    # Verificar Vendas do Vendedor
+                    case '2':
+                        vendedorNome = input('Nome do Vendedor -> ')
+                        dataFrame = pd.read_csv('./data/data.csv')
+
+                        indexDF = len(dataFrame['vendedor'])
+
+                        # Verificador se foi encontrado o vendedor
+                        found = False
+                        for i in range(indexDF):
+                            if dataFrame.loc[i, vendedorNome] == vendedorNome:
+                                print('Vendedor || Vendas || Item || Comissão || Valor')
+                                found = True
+                                print(dataFrame.loc[i, 'vendedor'])
+                                print(dataFrame.loc[i, 'vendas'])
+                                print(dataFrame.loc[i, 'item'])
+                                print(dataFrame.loc[i, 'comissao'])
+                                print(dataFrame.loc[i, 'valor'])
 
                     case '0':
                         break
 
                     case '?':
                         print('1 - Upload de Excel')
+                        print('2 - Vendas do Vendedor')
                         print('0 - Sair')
                         print('? - Ajuda')
 
