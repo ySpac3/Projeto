@@ -47,14 +47,16 @@ while True:
                             excel = pd.read_excel(xlsx)
                             dataFrame = pd.read_csv('./data/data.csv')
 
-                            indexData = len(dataFrame['email'])
+                            indexData = len(dataFrame['vendedor'])
 
                             for i in range(len(excel)):
-                                # Alterado a coluna de indentificação, de email para nome
+                                # Correção você não estava verificando o valor
                                 dataFrame.loc[indexData, 'vendedor'] = input('Nome do Vendedor -> ')
                                 dataFrame.loc[indexData, 'vendas'] = excel.loc[i, 'vendas']
                                 dataFrame.loc[indexData, 'item'] = excel.loc[i, 'item']
                                 dataFrame.loc[indexData, 'comissao'] = excel.loc[i, 'comissao']
+                                dataFrame.loc[indexData, 'valor'] = excel.loc[i, 'valor']
+
 
                                 indexData += 1
 
@@ -73,13 +75,14 @@ while True:
                         # Verificador se foi encontrado o vendedor
                         found = False
                         for i in range(indexDF):
-                            if dataFrame.loc[i, vendedorNome] == vendedorNome:
+                            #Correção: Você estava verificando uma coluna com base no nome do vendedor
+                            if dataFrame.loc[i, 'vendedor'] == vendedorNome:
                                 print('Vendedor || Vendas || Item || Comissão || Valor')
                                 found = True
-                                print(dataFrame.loc[i, 'vendedor'])
-                                print(dataFrame.loc[i, 'vendas'])
-                                print(dataFrame.loc[i, 'item'])
-                                print(dataFrame.loc[i, 'comissao'])
+                                print(dataFrame.loc[i, 'vendedor'], end=' ')
+                                print(dataFrame.loc[i, 'vendas'], end=' ')
+                                print(dataFrame.loc[i, 'item'], end=' ')
+                                print(dataFrame.loc[i, 'comissao'], end=' ')
                                 print(dataFrame.loc[i, 'valor'])
 
                     case '0':
