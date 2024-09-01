@@ -26,27 +26,33 @@ log = False
 
 
 class login_UI:
-    def __init__(self):
+    def __init__(self, error=False):
         self.users = None
         self.passwords = None
         self.email = None
-
+        #Você pode achar isso estranho, mas quando eu utilizava essa variavel direto na função por algum motivo o programa só ignorava
+        self.error = error
     def inicial_login_ui(self):
         #declarando variaveis
         log = False
         reg = False
         #declarando Funções
         def logar():
-            nonlocal log  # Variavel Verificando se vai logar
-            log = True
+            nonlocal log
             self.email = user_entry.get()
             self.passwords = password_entry.get()
-            login_window.destroy()
+            if self.email and self.passwords:
+                log = True
+                login_window.destroy()
+            else:
+                log = True
+                return self.email, self.passwords, reg
 
         def registrar():
             nonlocal reg
             reg = True
             login_window.destroy()
+
 
 
         # Criando a tela de Login
@@ -80,10 +86,9 @@ class login_UI:
 
         login_window.mainloop()
         if log:
-            return self.email, self.passwords
+            return self.email, self.passwords, reg
         if reg:
-
-            return self.email, self.passwords
+            return self.email, self.passwords, reg
     def incorrect_login(self):
         #declarando variaveis
         log = False
@@ -91,10 +96,14 @@ class login_UI:
         #declarando Funções
         def logar():
             nonlocal log
-            log = True
             self.email = user_entry.get()
             self.passwords = password_entry.get()
-            login_window.destroy()
+            if self.email and self.passwords:
+                log = True
+                login_window.destroy()
+            else:
+                log = True
+                return self.email, self.passwords, reg
         def registrar():
             nonlocal reg
             reg = True
@@ -132,21 +141,30 @@ class login_UI:
         btn_register.pack(pady=10)
         login_window.mainloop()
         if log:
-            return self.email, self.passwords
+            return self.email, self.passwords, reg
         if reg:
-            return self.email, self.passwords
-
-    def register(self):
+            return self.email, self.passwords, reg
+    def register(self, error=False):
         #Declarando Variaveis
         reg = False
         #Declarando Funções
         def registrar():
             nonlocal reg
-            reg = True
-            self.users = user_entry.get()
-            self.passwords = password_entry.get()
-            self.email = email_entry.get()
-            register_window.destroy()
+            self.users = user_entry.get().strip()
+            self.passwords = password_entry.get().strip()
+            self.email = email_entry.get().strip()
+            if self.users and self.passwords and self.email:
+                reg = True
+                register_window.destroy()
+            else:
+                user_entry.configure(border_color='red')
+                password_entry.configure(border_color='red')
+                email_entry.configure(border_color='red')
+            if self.error:
+                user_entry.configure(border_color='red')
+                password_entry.configure(border_color='red')
+                email_entry.configure(border_color='red')
+
 
         # Criando a tela de Login
         register_window = ctk.CTk()
