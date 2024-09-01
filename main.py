@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 import Graphics as G
-
+import verificacao as SQLInjection
 
 
 #sitema de login
@@ -51,11 +51,21 @@ while True:
 
                             for i in range(len(excel)):
                                 # Correção você não estava verificando o valor
-                                dataFrame.loc[indexData, 'vendedor'] = input('Nome do Vendedor -> ')
-                                dataFrame.loc[indexData, 'vendas'] = excel.loc[i, 'vendas']
-                                dataFrame.loc[indexData, 'item'] = excel.loc[i, 'item']
-                                dataFrame.loc[indexData, 'comissao'] = excel.loc[i, 'comissao']
-                                dataFrame.loc[indexData, 'valor'] = excel.loc[i, 'valor']
+
+                                nomeDoVendedor = input('Nome do Vendedor -> ')
+                                vendas = excel.loc[i, 'vendas']
+                                item = excel.loc[i, 'item']
+                                comissao = excel.loc[i, 'comissao']
+                                valor = excel.loc[i, 'valor']
+
+                                tryAgainSQLInjection = False
+                                for inp in [nomeDoVendedor, vendas, item, comissao, valor]:
+                                    if not SQLInjection.antiSQLInjection(inp):
+                                        dataFrame.loc[indexData, 'vendedor'] = nomeDoVendedor
+                                        dataFrame.loc[indexData, 'vendas'] = vendas
+                                        dataFrame.loc[indexData, 'item'] = item
+                                        dataFrame.loc[indexData, 'comissao'] = comissao
+                                        dataFrame.loc[indexData, 'valor'] = valor
 
 
                                 indexData += 1
@@ -102,14 +112,12 @@ while True:
 
 
     #Aqui começa a tela de registro
-
-    chars = [' ', ';', '>', '<', ';', ':'] # Caracteres especiais, que vão ajudar a tratar ataques de SQLInjection
     nome, senha, email = G.login_UI().register()
 
     # Sistema básico contra SQLInjection
     erroChar = False
     for inp in [nome, senha, email]:
-        if any(char in inp for char in chars):
+        if SQLInjection.antiSQLInjection(inp):
             erroChar = True
 
     if not erroChar:

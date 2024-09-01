@@ -1,3 +1,23 @@
+# ->TADEU FAVOR CORRIGIR<-
+# AO EXECUTAR O CÓDIGO E FAZER LOGIN A TELA SIMPLESMENTE FECHA
+# -> invalid command name "1592445479232update"
+#    while executing
+#"1592445479232update"
+#    ("after" script)
+#invalid command name "1592506645440check_dpi_scaling"
+#    while executing
+#"1592506645440check_dpi_scaling"
+#    ("after" script)
+#invalid command name "1592506645504_click_animation"
+#    while executing
+#"1592506645504_click_animation"
+#    ("after" script)
+
+# AO CLICAR EM REGISTRAR A TELA SIMPLESMENTE FECHA
+
+# E O CÓDIGO CONTINUA RODANDO NORMALMENTE
+
+
 import customtkinter as ctk
 
 log = False
