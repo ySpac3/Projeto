@@ -1,21 +1,4 @@
-# ->TADEU FAVOR CORRIGIR<-
-# AO EXECUTAR O CÓDIGO E FAZER LOGIN A TELA SIMPLESMENTE FECHA
-# -> invalid command name "1592445479232update"
-#    while executing
-#"1592445479232update"
-#    ("after" script)
-#invalid command name "1592506645440check_dpi_scaling"
-#    while executing
-#"1592506645440check_dpi_scaling"
-#    ("after" script)
-#invalid command name "1592506645504_click_animation"
-#    while executing
-#"1592506645504_click_animation"
-#    ("after" script)
-
-# AO CLICAR EM REGISTRAR A TELA SIMPLESMENTE FECHA
-
-# E O CÓDIGO CONTINUA RODANDO NORMALMENTE
+# Login ainda não funciona
 
 import pandas as pd
 import customtkinter as ctk
@@ -228,22 +211,23 @@ class menu:
         self.sell = ctk.CTkLabel(self.frame, text='Valor', font=('Arial', 24))
         self.sell.grid(row=0, column=5, pady=10, padx=10, sticky='ew')
         for i in range(0, len(dataFrame)):
-            self.lastsell = ctk.CTkLabel(self.frame,text=f'{dataFrame.loc[i]['vendedor']}',font=('Arial',28))
+            # Tadeu... dataFrame[i, 'email'], não dataFrame[i]['email']
+            self.lastsell = ctk.CTkLabel(self.frame,text=f'{dataFrame.loc[i, 'vendedor']}',font=('Arial',28))
             self.lastsell.grid(column=0,row=i+1,pady=10,padx=10,sticky='ew')
 
-            self.lastsell = ctk.CTkLabel(self.frame, text=f'{dataFrame.loc[i]['email']}', font=('Arial', 28))
+            self.lastsell = ctk.CTkLabel(self.frame, text=f'{dataFrame.loc[i, 'email']}', font=('Arial', 28))
             self.lastsell.grid(column=1, row=i + 1, pady=10, padx=10, sticky='')
 
-            self.lastsell = ctk.CTkLabel(self.frame, text=f'{dataFrame.loc[i]['vendas']}', font=('Arial', 28))
+            self.lastsell = ctk.CTkLabel(self.frame, text=f'{dataFrame.loc[i, 'vendas']}', font=('Arial', 28))
             self.lastsell.grid(column=2, row=i + 1, pady=10, padx=10, sticky='')
 
-            self.lastsell = ctk.CTkLabel(self.frame, text=f'{dataFrame.loc[i]['item']}', font=('Arial', 28))
+            self.lastsell = ctk.CTkLabel(self.frame, text=f'{dataFrame.loc[i, 'item']}', font=('Arial', 28))
             self.lastsell.grid(column=3, row=i + 1, pady=10, padx=10, sticky='')
 
-            self.lastsell = ctk.CTkLabel(self.frame, text=f'{dataFrame.loc[i]['comissao']}', font=('Arial', 28))
+            self.lastsell = ctk.CTkLabel(self.frame, text=f'{dataFrame.loc[i, 'comissao']}', font=('Arial', 28))
             self.lastsell.grid(column=4, row=i + 1, pady=10, padx=10, sticky='')
 
-            self.lastsell = ctk.CTkLabel(self.frame, text=f'{dataFrame.loc[i]['valor']}', font=('Arial', 28))
+            self.lastsell = ctk.CTkLabel(self.frame, text=f'{dataFrame.loc[i, 'valor']}', font=('Arial', 28))
             self.lastsell.grid(column=5, row=i + 1, pady=10, padx=10, sticky='')
 
         self.menu.grid_rowconfigure(1, weight=0)

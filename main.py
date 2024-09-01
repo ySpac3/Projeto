@@ -50,7 +50,7 @@ while True:
                                 indexData = len(dataFrame['vendedor'])
 
                                 for i in range(len(excel)):
-                                    # Correção você não estava verificando o valor
+                                    # Não achei o erro que você estava dizendo
 
                                     nomeDoVendedor = input('Nome do Vendedor -> ')
                                     vendas = excel.loc[i, 'vendas']
@@ -134,4 +134,3 @@ while True:
             break
     except:
         print('Tela de Registro Fechada')
-
