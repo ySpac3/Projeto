@@ -29,6 +29,7 @@ while True:
                 email, senha, reg = G.login_UI().incorrect_login()
 
         if login:
+                G.menu()
                 # Incrementar a UI aqui
                 print('Opções:')
                 print('1 - Upload de Arquivos Excel')

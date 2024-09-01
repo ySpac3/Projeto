@@ -17,14 +17,10 @@
 
 # E O CÓDIGO CONTINUA RODANDO NORMALMENTE
 
-
+import pandas as pd
 import customtkinter as ctk
 
-log = False
-
-
-
-
+dataFrame = pd.read_csv('./data/data.csv')
 class login_UI:
     def __init__(self, error=False):
         self.users = None
@@ -198,3 +194,58 @@ class login_UI:
         register_window.mainloop()
         if reg:
             return self.users, self.passwords, self.email
+
+class menu:
+    def __init__(self):
+        self.menu = ctk.CTk()
+        self.menu.geometry('1280x720')
+
+        self.menu.grid_rowconfigure(0, weight=1)
+        self.menu.grid_rowconfigure(1, weight=0)
+        self.menu.grid_columnconfigure(0, weight=1)
+
+        self.frame = ctk.CTkScrollableFrame(self.menu, fg_color='transparent', height=360, width=1130)
+        self.frame.grid(row=1,column=0,sticky='e')
+
+        self.frame.grid_rowconfigure(0, weight=0)
+        self.frame.grid_columnconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(1, weight=1)
+        self.frame.grid_columnconfigure(2, weight=1)
+        self.frame.grid_columnconfigure(3, weight=1)
+        self.frame.grid_columnconfigure(4, weight=1)
+        self.frame.grid_columnconfigure(5, weight=1)
+
+        self.sell = ctk.CTkLabel(self.frame, text='Vendedor', font=('Arial', 24))
+        self.sell.grid(row=0, column=0, pady=10, padx=10, sticky='ew')
+        self.sell = ctk.CTkLabel(self.frame, text='Email', font=('Arial', 24))
+        self.sell.grid(row=0, column=1, pady=10, padx=10, sticky='ew')
+        self.sell = ctk.CTkLabel(self.frame, text='Vendas', font=('Arial', 24))
+        self.sell.grid(row=0, column=2, pady=10, padx=10, sticky='ew')
+        self.sell = ctk.CTkLabel(self.frame, text='Item', font=('Arial', 24))
+        self.sell.grid(row=0, column=3, pady=10, padx=10, sticky='ew')
+        self.sell = ctk.CTkLabel(self.frame, text='Comissao', font=('Arial', 24))
+        self.sell.grid(row=0, column=4, pady=10, padx=10, sticky='ew')
+        self.sell = ctk.CTkLabel(self.frame, text='Valor', font=('Arial', 24))
+        self.sell.grid(row=0, column=5, pady=10, padx=10, sticky='ew')
+        for i in range(0, len(dataFrame)):
+            self.lastsell = ctk.CTkLabel(self.frame,text=f'{dataFrame.loc[i]['vendedor']}',font=('Arial',28))
+            self.lastsell.grid(column=0,row=i+1,pady=10,padx=10,sticky='ew')
+
+            self.lastsell = ctk.CTkLabel(self.frame, text=f'{dataFrame.loc[i]['email']}', font=('Arial', 28))
+            self.lastsell.grid(column=1, row=i + 1, pady=10, padx=10, sticky='')
+
+            self.lastsell = ctk.CTkLabel(self.frame, text=f'{dataFrame.loc[i]['vendas']}', font=('Arial', 28))
+            self.lastsell.grid(column=2, row=i + 1, pady=10, padx=10, sticky='')
+
+            self.lastsell = ctk.CTkLabel(self.frame, text=f'{dataFrame.loc[i]['item']}', font=('Arial', 28))
+            self.lastsell.grid(column=3, row=i + 1, pady=10, padx=10, sticky='')
+
+            self.lastsell = ctk.CTkLabel(self.frame, text=f'{dataFrame.loc[i]['comissao']}', font=('Arial', 28))
+            self.lastsell.grid(column=4, row=i + 1, pady=10, padx=10, sticky='')
+
+            self.lastsell = ctk.CTkLabel(self.frame, text=f'{dataFrame.loc[i]['valor']}', font=('Arial', 28))
+            self.lastsell.grid(column=5, row=i + 1, pady=10, padx=10, sticky='')
+
+        self.menu.grid_rowconfigure(1, weight=0)
+        self.menu.grid_columnconfigure(0, weight=1)
+        self.menu.mainloop()
