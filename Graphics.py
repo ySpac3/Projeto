@@ -3,7 +3,8 @@
 import pandas as pd
 import customtkinter as ctk
 
-dataFrame = pd.read_csv('./data/data.csv')
+# Vc estava acessando o a base de dados das tabelas, não a de logins
+dataFrame = pd.read_csv('./data/logins.csv')
 class login_UI:
     def __init__(self, error=False):
         self.users = None
