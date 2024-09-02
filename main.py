@@ -12,6 +12,8 @@ while True:
 
     login = False
     while True:
+        # Me dei conta que isso daqui não é gambiarra, nem artimanha nem maracutaia. É assim mesmo
+        #setafuncionandonãomexe
         if db['email'].isin([email]).any():
             pssword = db.loc[db['email'] == email, 'senha'].values[0]
             if pssword == senha:
@@ -95,12 +97,31 @@ while True:
                                     print(dataFrame.loc[i, 'comissao'], end=' ')
                                     print(dataFrame.loc[i, 'valor'])
 
+                        # Cria novas pastas para cada novo vendedor adicionado
+                        case '3':
+                            nomeVendedor = input('Digite o Nome do Novo Vendedor -> ').replace(' ', '-')
+                            os.system(f'mkdir vendedores/{nomeDoVendedor}')
+                            with open(f'vendedores/{nomeDoVendedor}/{nomeDoVendedor}-tab.csv', 'w') as f:
+                                f.write(' ')
+
+                        # Busca pelo conteúdo da tabela do vendedor
+                        case '4':
+                            nomeDoVendedor = input('Insira o Nome do Vendedor -> ').replace(' ', '-')
+                            if os.path.exists(f'./{nomeDoVendedor}'):
+                                dbVendedor = pd.read_csv(f'./{nomeDoVendedor}/{nomeDoVendedor}-tab.csv')
+                                print(dbVendedor)
+
+                            else:
+                                print('Vendedor Não Encontrado')
+
                         case '0':
                             break
 
                         case '?':
                             print('1 - Upload de Excel')
                             print('2 - Vendas do Vendedor')
+                            print('3 - Adicionar Novo Vendedor')
+                            print('4 - Verificar Vendas do Vendedor')
                             print('0 - Sair')
                             print('? - Ajuda')
 
