@@ -21,12 +21,12 @@ while True:
             else:
                 # Ao usar uma string em um if ele já verifica se ela foi preenchida
                 if email or senha:
-                    email, senha, reg = G.login_UI().incorrect_login()
+                    email, senha, reg = G.login_UI(error=True).inicial_login_ui()
 
 
         else:
             if email or senha:
-                email, senha, reg = G.login_UI().incorrect_login()
+                email, senha, reg = G.login_UI(error=True).inicial_login_ui()
 
         if login:
                 dataFrame = pd.read_csv('./data/data.csv')
