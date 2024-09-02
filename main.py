@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 import Graphics as G
-import verificacao as SQLInjection
+
 
 
 #sitema de login
@@ -12,8 +12,6 @@ while True:
 
     login = False
     while True:
-        # Me dei conta que isso daqui não é gambiarra, nem artimanha nem maracutaia. É assim mesmo
-        #setafuncionandonãomexe
         if db['email'].isin([email]).any():
             pssword = db.loc[db['email'] == email, 'senha'].values[0]
             if pssword == senha:
@@ -33,51 +31,13 @@ while True:
                 dataFrame = pd.read_csv('./data/data.csv')
 
                 # Incrementar a UI aqui
-                print('Opções:')
-                print('1 - Upload de Arquivos Excel')
-                print('0 - Sair')
-                print('? - Ajuda')
+
                 G.menu(dataFrame)
-                userInput = input('input')
+
                 while True:
-                    print(userInput)
+                    userInput = None
                     match userInput:
-                        case '1':
-                            xlsx = input('Caminho do Arquivo .xlsx -> ')
 
-                            if os.path.exists(xlsx):
-                                excel = pd.read_excel(xlsx)
-                                dataFrame = pd.read_csv('./data/data.csv')
-
-                                indexData = len(dataFrame['vendedor'])
-
-                                for i in range(len(excel)):
-                                    # Não achei o erro que você estava dizendo
-
-                                    nomeDoVendedor = input('Nome do Vendedor -> ')
-                                    vendas = excel.loc[i, 'vendas']
-                                    item = excel.loc[i, 'item']
-                                    comissao = excel.loc[i, 'comissao']
-                                    valor = excel.loc[i, 'valor']
-
-                                    tryAgainSQLInjection = False
-                                    for inp in [nomeDoVendedor, vendas, item, comissao, valor]:
-                                        if not SQLInjection.antiSQLInjection(inp):
-                                            dataFrame.loc[indexData, 'vendedor'] = nomeDoVendedor
-                                            dataFrame.loc[indexData, 'vendas'] = vendas
-                                            dataFrame.loc[indexData, 'item'] = item
-                                            dataFrame.loc[indexData, 'comissao'] = comissao
-                                            dataFrame.loc[indexData, 'valor'] = valor
-
-
-                                    indexData += 1
-
-                                dataFrame.to_csv('./data/data.csv', index=False)
-
-                            else:
-                                print('Arquivo Não Existe')
-
-                        # Verificar Vendas do Vendedor
                         case '2':
                             vendedorNome = input('Nome do Vendedor -> ')
                             dataFrame = pd.read_csv('./data/data.csv')
@@ -97,31 +57,12 @@ while True:
                                     print(dataFrame.loc[i, 'comissao'], end=' ')
                                     print(dataFrame.loc[i, 'valor'])
 
-                        # Cria novas pastas para cada novo vendedor adicionado
-                        case '3':
-                            nomeVendedor = input('Digite o Nome do Novo Vendedor -> ').replace(' ', '-')
-                            os.system(f'mkdir vendedores/{nomeDoVendedor}')
-                            with open(f'vendedores/{nomeDoVendedor}/{nomeDoVendedor}-tab.csv', 'w') as f:
-                                f.write(' ')
-
-                        # Busca pelo conteúdo da tabela do vendedor
-                        case '4':
-                            nomeDoVendedor = input('Insira o Nome do Vendedor -> ').replace(' ', '-')
-                            if os.path.exists(f'./{nomeDoVendedor}'):
-                                dbVendedor = pd.read_csv(f'./{nomeDoVendedor}/{nomeDoVendedor}-tab.csv')
-                                print(dbVendedor)
-
-                            else:
-                                print('Vendedor Não Encontrado')
-
                         case '0':
                             break
 
                         case '?':
                             print('1 - Upload de Excel')
                             print('2 - Vendas do Vendedor')
-                            print('3 - Adicionar Novo Vendedor')
-                            print('4 - Verificar Vendas do Vendedor')
                             print('0 - Sair')
                             print('? - Ajuda')
 

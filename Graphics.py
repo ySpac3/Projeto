@@ -2,6 +2,10 @@
 
 import pandas as pd
 import customtkinter as ctk
+from tkinterdnd2 import DND_FILES, TkinterDnD
+import tkinter
+import verificacao as SQLInjection
+import os
 
 #mas é a base de tabelas mesmo
 
@@ -130,7 +134,8 @@ class login_UI:
             return self.users, self.passwords, self.email
 
 def menu(dataFrame):
-    menu = ctk.CTk()
+    menu = TkinterDnD.Tk()
+    menu.configure(bg='gray')
     menu.geometry('1280x720')
 
     menu.grid_rowconfigure(0, weight=1)
@@ -182,7 +187,11 @@ def menu(dataFrame):
 
     def Upload():
         nonlocal frame
+        nonlocal menu
         frame.destroy()
+        DND_frame = ctk.CTkFrame(menu, width=200, height=200, fg_color='purple')
+        DND_frame.grid(row=0, column=1, sticky='')
+        dndfiles(DND_frame)
 
 
     btn_menu = ctk.CTkButton(btn_frame,fg_color='transparent',text='Menu principal', font=('Arial',24))
@@ -193,3 +202,45 @@ def menu(dataFrame):
     menu.grid_rowconfigure(1, weight=0)
     menu.grid_columnconfigure(0, weight=1)
     menu.mainloop()
+
+class dndfiles:
+    def __init__(self, root):
+        self.frame = root
+        self.frame.drop_target_register(DND_FILES)
+        self.frame.dnd_bind('<<Drop>>', self.on_drop)
+
+    def upload_data(path):
+        xlsx = path[0]
+        if os.path.exists(xlsx):
+            excel = pd.read_excel(xlsx)
+            dataFrame = pd.read_csv('./data/data.csv')
+
+            indexData = len(dataFrame['vendedor'])
+
+            for i in range(len(excel)):
+                # Não achei o erro que você estava dizendo
+
+                Vendedor = input('Nome do Vendedor -> ')
+                vendas = excel.loc[i, 'vendas']
+                item = excel.loc[i, 'item']
+                comissao = excel.loc[i, 'comissao']
+                valor = excel.loc[i, 'valor']
+
+                dataFrame.loc[indexData, 'vendedor'] = Vendedor
+                dataFrame.loc[indexData, 'vendas'] = vendas
+                dataFrame.loc[indexData, 'item'] = item
+                dataFrame.loc[indexData, 'comissao'] = comissao
+                dataFrame.loc[indexData, 'valor'] = valor
+
+                indexData += 1
+
+            dataFrame.to_csv('./data/data.csv', index=False)
+
+        else:
+            print('Arquivo Não Existe')
+    def on_drop(self, event):
+        """Função chamada quando arquivos são soltos no frame."""
+        # Extrair o caminho dos arquivos
+        files = self.frame.tk.splitlist(event.data)
+        print(files)
+        dndfiles.upload_data(files)
