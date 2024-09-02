@@ -6,7 +6,6 @@ import verificacao as SQLInjection
 
 #sitema de login
 db = pd.read_csv('./data/logins.csv')
-# aqui ta a função da UI
 while True:
     # Começo da tela de login aqui
     email, senha, reg = G.login_UI().inicial_login_ui()
@@ -30,16 +29,16 @@ while True:
 
         if login:
                 dataFrame = pd.read_csv('./data/data.csv')
-                G.menu(dataFrame)
+
                 # Incrementar a UI aqui
                 print('Opções:')
                 print('1 - Upload de Arquivos Excel')
                 print('0 - Sair')
                 print('? - Ajuda')
-
+                G.menu(dataFrame)
+                userInput = input('input')
                 while True:
-                    userInput = input(' -> ')
-
+                    print(userInput)
                     match userInput:
                         case '1':
                             xlsx = input('Caminho do Arquivo .xlsx -> ')
