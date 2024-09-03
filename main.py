@@ -39,7 +39,8 @@ while True:
                     match userInput:
                         case '3':
                             nomeDoVendedor = input('Digite o Nome do Novo Vendedor -> ').replace(' ', '-')
-                            os.system(f'mkdir vendedores/{nomeDoVendedor}')
+                            print(f'{nomeDoVendedor}')
+                            os.mkdir(f'./vendedores/{nomeDoVendedor}')
                             with open(f'vendedores/{nomeDoVendedor}/{nomeDoVendedor}-tab.csv', 'w') as f:
                                 f.write(' ')
 
