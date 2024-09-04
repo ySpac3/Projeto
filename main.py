@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import Graphics as G
+import Functions as F
 
 
 
@@ -28,9 +29,9 @@ while True:
                 email, senha, reg = G.login_UI(error=True).inicial_login_ui()
 
         if login:
-                dataFrame = pd.read_csv('./data/data.csv')
 
-                # Incrementar a UI aqui
+                login_atual = db.loc[db['email'] == email, 'nome'].values[0]
+                dataFrame = pd.read_csv(f'./vendedores/{login_atual}/{login_atual}-tab.csv')
 
                 G.menu(dataFrame)
 
@@ -39,21 +40,14 @@ while True:
                     match userInput:
                         case '3':
                             nomeDoVendedor = input('Digite o Nome do Novo Vendedor -> ').replace(' ', '-')
-                            print(f'{nomeDoVendedor}')
-                            os.mkdir(f'./vendedores/{nomeDoVendedor}')
-                            with open(f'vendedores/{nomeDoVendedor}/{nomeDoVendedor}-tab.csv', 'w') as f:
-                                f.write(' ')
+                            F.criarVendedores(login=login_atual, nomeDoVendedor=nomeDoVendedor)
+
 
                     # Busca pelo conteúdo da tabela do vendedor
                         case '4':
                             nomeDoVendedor = input('Insira o Nome do Vendedor -> ').replace(' ', '-')
-                            if os.path.exists(f'./vendedores/{nomeDoVendedor}'):
-                                dbVendedor = pd.read_csv(f'./vendedores/{nomeDoVendedor}/{nomeDoVendedor}-tab.csv')
-                                print(dbVendedor)
-
-                            else:
-                                print('Vendedor Não Encontrado')
-
+                            test = F.queryVendedores(login='admin',nomeDoVendedor=nomeDoVendedor)
+                            print(test)
                         case '2':
                             vendedorNome = input('Nome do Vendedor -> ')
                             dataFrame = pd.read_csv('./data/data.csv')
@@ -92,23 +86,14 @@ while True:
 
 
         #Aqui começa a tela de registro
-    try:
-        nome, senha, email = G.login_UI().register()
-            # Sistema básico contra SQLInjection
-        erroChar = False
+    nome, senha, email = G.login_UI().register()
+    F.criar_login(nome)
+    if not db['email'].isin([email]).any():
+        index = len(db['email'])
+        db.loc[index, 'nome'] = nome
+        db.loc[index, 'email'] = email
+        db.loc[index, 'senha'] = senha
 
-        if not erroChar:
-            if not db['email'].isin([email]).any():
-                index = len(db['email'])
-                db.loc[index, 'nome'] = nome
-                db.loc[index, 'email'] = email
-                db.loc[index, 'senha'] = senha
-
-                db.to_csv('./data/logins.csv', index=False)
-            else:
-                nome, senha, email = G.login_UI(error=True).register()
-        else:
-            print('Erro. Não é permitido caracteres especiais como : ";", ">", "<", ";", ":"')
-            break
-    except:
-        print('Tela de Registro Fechada')
+        db.to_csv('./data/logins.csv', index=False)
+    else:
+        nome, senha, email = G.login_UI(error=True).register()

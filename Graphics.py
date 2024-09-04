@@ -8,7 +8,9 @@ import verificacao as SQLInjection
 import os
 import Functions as F
 
-#mas é a base de tabelas mesmo
+db = pd.read_csv('./data/logins.csv')
+
+Login_atual = ''
 
 class login_UI:
     def __init__(self, error=False):
@@ -75,7 +77,10 @@ class login_UI:
 
         login_window.mainloop()
         if self.log:
+            global Login_atual
+            Login_atual = db.loc[db['email'] == self.email, 'nome'].values[0]
             return self.email, self.passwords, self.reg
+
         if self.reg:
             return self.email, self.passwords, self.reg
     def register(self, error=False):
@@ -141,31 +146,32 @@ def menu(dataFrame):
         menu.withdraw()
 
     def Principal():
-        nonlocal frame
-        nonlocal second_frame
+        nonlocal frame_1
+        for i in frame_1.winfo_children():
+            i.destroy()
 
-        # Começando no menu principal
-        second_frame.configure(fg_color='transparent')
-        frame.configure(fg_color='transparent', height=300, width=1130)
-        frame.grid_rowconfigure(0, weight=0)
+        frame_principal = ctk.CTkScrollableFrame(frame_1, fg_color='transparent', width=1000, height=330)
+        frame_principal.grid(row=1, column=0, sticky='se')
         # Configurando as colunas do frame
         for i in range(0, 4):
-            frame.grid_columnconfigure(i, weight=1)
+            frame_principal.grid_columnconfigure(i, weight=1)
         # Configurando tópicos
         for i, v in enumerate(['Vendedor', 'Vendas', 'Item', 'Comissao', 'Valor']):
-            sell = ctk.CTkLabel(frame, text=v, font=('Arial', 24))
+            sell = ctk.CTkLabel(frame_principal, text=v, font=('Arial', 24))
             sell.grid(row=0, column=i, pady=10, padx=10, sticky='ew')
         # Configurando valores dos Tópicos
         for i in range(0, len(dataFrame)):
             for p, v in enumerate(['vendedor', 'vendas', 'item', 'comissao', 'valor']):
-                lastsell = ctk.CTkLabel(frame, text=f"{dataFrame.loc[i, v]}", font=('Arial', 28))
+                lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, v]}", font=('Arial', 28))
                 lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
 
     def Upload():
-        nonlocal frame
-        nonlocal second_frame
-        for i in frame.winfo_children():
+        nonlocal frame_1
+        for i in frame_1.winfo_children():
             i.destroy()
+
+        second_frame = ctk.CTkFrame(frame_1, width=200, height=200, fg_color='purple')
+        second_frame.grid(row=0, column=0, pady=80)
         #Configurando para o second frame virar um drag and drop e ficar visivel
         second_frame.configure(fg_color='purple')
         dndfiles(second_frame)
@@ -177,27 +183,16 @@ def menu(dataFrame):
     menu.grid_rowconfigure(0, weight=1)
     menu.grid_rowconfigure(1, weight=0)
     menu.grid_columnconfigure(0, weight=1, minsize=180)
+    menu.grid_columnconfigure(1, weight=1, minsize=1100)
     menu.grid_columnconfigure(1, weight=1)
 
     #Começando no menu principal
-    frame = ctk.CTkScrollableFrame(menu, fg_color='transparent', height=300, width=1130)
-    frame.grid(row=1, column=1, sticky='e')
-    frame.grid_rowconfigure(0, weight=0)
-    # Configurando as colunas do frame
-    for i in range(0, 4):
-        frame.grid_columnconfigure(i, weight=1)
-    # Configurando tópicos
-    for i, v in enumerate(['Vendedor', 'Vendas', 'Item', 'Comissao', 'Valor']):
-        sell = ctk.CTkLabel(frame, text=v, font=('Arial', 24))
-        sell.grid(row=0, column=i, pady=10, padx=10, sticky='ew')
-    # Configurando valores dos Tópicos
-    for i in range(0, len(dataFrame)):
-        for p, v in enumerate(['vendedor', 'vendas', 'item', 'comissao', 'valor']):
-            lastsell = ctk.CTkLabel(frame, text=f"{dataFrame.loc[i, v]}", font=('Arial', 28))
-            lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
+    frame_1 = ctk.CTkFrame(menu, fg_color='transparent', width=1100)
+    frame_1.grid(row=0, column=1, sticky='nsew', rowspan=2)
+    frame_1.grid_rowconfigure(1, weight=1)
+    frame_1.grid_columnconfigure(0,weight=1)
+    Principal()
 
-    second_frame = ctk.CTkFrame(menu, width=200, height=200, fg_color='transparent')
-    second_frame.grid(row=0, column=1, sticky='')
 
     #Criando Frame de botões de menu
     btn_frame = ctk.CTkFrame(menu, fg_color='teal', width=250)
@@ -229,4 +224,4 @@ class dndfiles:
         # Extrair o caminho dos arquivos
         files = self.frame.tk.splitlist(event.data)
         print(files)
-        F.upload_data(files)
+        F.upload_data_geral(files, login_atual=Login_atual)
