@@ -47,8 +47,8 @@ while True:
                     # Busca pelo conteúdo da tabela do vendedor
                         case '4':
                             nomeDoVendedor = input('Insira o Nome do Vendedor -> ').replace(' ', '-')
-                            if os.path.exists(f'./{nomeDoVendedor}'):
-                                dbVendedor = pd.read_csv(f'./{nomeDoVendedor}/{nomeDoVendedor}-tab.csv')
+                            if os.path.exists(f'./vendedores/{nomeDoVendedor}'):
+                                dbVendedor = pd.read_csv(f'./vendedores/{nomeDoVendedor}/{nomeDoVendedor}-tab.csv')
                                 print(dbVendedor)
 
                             else:

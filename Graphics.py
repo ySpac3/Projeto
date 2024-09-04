@@ -6,6 +6,7 @@ from tkinterdnd2 import DND_FILES, TkinterDnD
 import tkinter
 import verificacao as SQLInjection
 import os
+import Functions as F
 
 #mas é a base de tabelas mesmo
 
@@ -134,6 +135,41 @@ class login_UI:
             return self.users, self.passwords, self.email
 
 def menu(dataFrame):
+
+    def DEBUG():
+        menu.quit()
+        menu.withdraw()
+
+    def Principal():
+        nonlocal frame
+        nonlocal second_frame
+
+        # Começando no menu principal
+        second_frame.configure(fg_color='transparent')
+        frame.configure(fg_color='transparent', height=300, width=1130)
+        frame.grid_rowconfigure(0, weight=0)
+        # Configurando as colunas do frame
+        for i in range(0, 4):
+            frame.grid_columnconfigure(i, weight=1)
+        # Configurando tópicos
+        for i, v in enumerate(['Vendedor', 'Vendas', 'Item', 'Comissao', 'Valor']):
+            sell = ctk.CTkLabel(frame, text=v, font=('Arial', 24))
+            sell.grid(row=0, column=i, pady=10, padx=10, sticky='ew')
+        # Configurando valores dos Tópicos
+        for i in range(0, len(dataFrame)):
+            for p, v in enumerate(['vendedor', 'vendas', 'item', 'comissao', 'valor']):
+                lastsell = ctk.CTkLabel(frame, text=f"{dataFrame.loc[i, v]}", font=('Arial', 28))
+                lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
+
+    def Upload():
+        nonlocal frame
+        nonlocal second_frame
+        for i in frame.winfo_children():
+            i.destroy()
+        #Configurando para o second frame virar um drag and drop e ficar visivel
+        second_frame.configure(fg_color='purple')
+        dndfiles(second_frame)
+
     menu = TkinterDnD.Tk()
     menu.configure(bg='gray')
     menu.geometry('1280x720')
@@ -143,64 +179,37 @@ def menu(dataFrame):
     menu.grid_columnconfigure(0, weight=1, minsize=180)
     menu.grid_columnconfigure(1, weight=1)
 
+    #Começando no menu principal
     frame = ctk.CTkScrollableFrame(menu, fg_color='transparent', height=300, width=1130)
-    frame.grid(row=1,column=1,sticky='e')
-
+    frame.grid(row=1, column=1, sticky='e')
     frame.grid_rowconfigure(0, weight=0)
-    frame.grid_columnconfigure(0, weight=1)
-    frame.grid_columnconfigure(1, weight=1)
-    frame.grid_columnconfigure(2, weight=1)
-    frame.grid_columnconfigure(3, weight=1)
-    frame.grid_columnconfigure(4, weight=1)
-
-    sell = ctk.CTkLabel(frame, text='Vendedor', font=('Arial', 24))
-    sell.grid(row=0, column=0, pady=10, padx=10, sticky='ew')
-    sell = ctk.CTkLabel(frame, text='Vendas', font=('Arial', 24))
-    sell.grid(row=0, column=1, pady=10, padx=10, sticky='ew')
-    sell = ctk.CTkLabel(frame, text='Item', font=('Arial', 24))
-    sell.grid(row=0, column=2, pady=10, padx=10, sticky='ew')
-    sell = ctk.CTkLabel(frame, text='Comissao', font=('Arial', 24))
-    sell.grid(row=0, column=3, pady=10, padx=10, sticky='ew')
-    sell = ctk.CTkLabel(frame, text='Valor', font=('Arial', 24))
-    sell.grid(row=0, column=4, pady=10, padx=10, sticky='ew')
-
+    # Configurando as colunas do frame
+    for i in range(0, 4):
+        frame.grid_columnconfigure(i, weight=1)
+    # Configurando tópicos
+    for i, v in enumerate(['Vendedor', 'Vendas', 'Item', 'Comissao', 'Valor']):
+        sell = ctk.CTkLabel(frame, text=v, font=('Arial', 24))
+        sell.grid(row=0, column=i, pady=10, padx=10, sticky='ew')
+    # Configurando valores dos Tópicos
     for i in range(0, len(dataFrame)):
-            # Tadeu... dataFrame[i, 'email'], não dataFrame[i]['email']
-        lastsell = ctk.CTkLabel(frame,text=f"{dataFrame.loc[i, 'vendedor']}",font=('Arial',28))
-        lastsell.grid(column=0,row=i + 1,pady=10,padx=10,sticky='ew')
+        for p, v in enumerate(['vendedor', 'vendas', 'item', 'comissao', 'valor']):
+            lastsell = ctk.CTkLabel(frame, text=f"{dataFrame.loc[i, v]}", font=('Arial', 28))
+            lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
 
-        lastsell = ctk.CTkLabel(frame, text=f"{dataFrame.loc[i, 'vendas']}", font=('Arial', 28))
-        lastsell.grid(column=1, row=i + 1, pady=10, padx=10, sticky='')
+    second_frame = ctk.CTkFrame(menu, width=200, height=200, fg_color='transparent')
+    second_frame.grid(row=0, column=1, sticky='')
 
-        lastsell = ctk.CTkLabel(frame, text=f"{dataFrame.loc[i, 'item']}", font=('Arial', 28))
-        lastsell.grid(column=2, row=i + 1, pady=10, padx=10, sticky='')
-
-        lastsell = ctk.CTkLabel(frame, text=f"{dataFrame.loc[i, 'comissao']}", font=('Arial', 28))
-        lastsell.grid(column=3, row=i + 1, pady=10, padx=10, sticky='')
-
-        lastsell = ctk.CTkLabel(frame, text=f"{dataFrame.loc[i, 'valor']}", font=('Arial', 28))
-        lastsell.grid(column=4, row=i + 1, pady=10, padx=10, sticky='')
-
+    #Criando Frame de botões de menu
     btn_frame = ctk.CTkFrame(menu, fg_color='teal', width=250)
     btn_frame.grid(row=0, column=0, sticky='nsew', rowspan=2)
     btn_frame.grid_columnconfigure(0,weight=1)
 
-    def Upload():
-        nonlocal frame
-        nonlocal menu
-        frame.destroy()
-        DND_frame = ctk.CTkFrame(menu, width=200, height=200, fg_color='purple')
-        DND_frame.grid(row=0, column=1, sticky='')
-        dndfiles(DND_frame)
-    def DEBUG():
-        menu.quit()
-        menu.withdraw()
-
-    btn_menu = ctk.CTkButton(btn_frame,fg_color='transparent',text='Menu principal', font=('Arial',24))
+    #Criando botões do frame de botões
+    btn_menu = ctk.CTkButton(btn_frame,fg_color='transparent',text='Menu principal', font=('Arial',24), command=Principal)
     btn_menu.grid(row=0,column=0, sticky='ew',pady=10,ipady=10)
     btn_upload = ctk.CTkButton(btn_frame, fg_color='transparent', text='Menu Upload', font=('Arial', 24), command=Upload)
     btn_upload.grid(row=1, column=0, sticky='ew', ipady=10,)
-
+    #botão debug
     btn_debug = ctk.CTkButton(btn_frame,fg_color='transparent', text='DEBUG', command=DEBUG)
     btn_debug.grid(row=2,column=0)
 
@@ -214,38 +223,10 @@ class dndfiles:
         self.frame.drop_target_register(DND_FILES)
         self.frame.dnd_bind('<<Drop>>', self.on_drop)
 
-    def upload_data(path):
-        xlsx = path[0]
-        if os.path.exists(xlsx):
-            excel = pd.read_excel(xlsx)
-            dataFrame = pd.read_csv('./data/data.csv')
 
-            indexData = len(dataFrame['vendedor'])
-
-            for i in range(len(excel)):
-                # Não achei o erro que você estava dizendo
-
-                Vendedor = input('Nome do Vendedor -> ')
-                vendas = excel.loc[i, 'vendas']
-                item = excel.loc[i, 'item']
-                comissao = excel.loc[i, 'comissao']
-                valor = excel.loc[i, 'valor']
-
-                dataFrame.loc[indexData, 'vendedor'] = Vendedor
-                dataFrame.loc[indexData, 'vendas'] = vendas
-                dataFrame.loc[indexData, 'item'] = item
-                dataFrame.loc[indexData, 'comissao'] = comissao
-                dataFrame.loc[indexData, 'valor'] = valor
-
-                indexData += 1
-
-            dataFrame.to_csv('./data/data.csv', index=False)
-
-        else:
-            print('Arquivo Não Existe')
     def on_drop(self, event):
         """Função chamada quando arquivos são soltos no frame."""
         # Extrair o caminho dos arquivos
         files = self.frame.tk.splitlist(event.data)
         print(files)
-        dndfiles.upload_data(files)
+        F.upload_data(files)
