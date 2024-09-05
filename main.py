@@ -32,6 +32,7 @@ while True:
 
                 login_atual = db.loc[db['email'] == email, 'nome'].values[0]
                 dataFrame = pd.read_csv(f'./vendedores/{login_atual}/{login_atual}-tab.csv')
+                print(dataFrame)
 
                 G.menu(dataFrame)
 
@@ -63,7 +64,6 @@ while True:
                                     found = True
                                     print(dataFrame.loc[i, 'vendedor'], end=' ')
                                     print(dataFrame.loc[i, 'vendas'], end=' ')
-                                    print(dataFrame.loc[i, 'item'], end=' ')
                                     print(dataFrame.loc[i, 'comissao'], end=' ')
                                     print(dataFrame.loc[i, 'valor'])
 

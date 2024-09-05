@@ -11,6 +11,7 @@ import Functions as F
 db = pd.read_csv('./data/logins.csv')
 
 Login_atual = ''
+vendedor_atual = ''
 
 class login_UI:
     def __init__(self, error=False):
@@ -141,6 +142,8 @@ class login_UI:
 
 def menu(dataFrame):
 
+    click = False
+
     def DEBUG():
         menu.quit()
         menu.withdraw()
@@ -156,25 +159,75 @@ def menu(dataFrame):
         for i in range(0, 4):
             frame_principal.grid_columnconfigure(i, weight=1)
         # Configurando tópicos
-        for i, v in enumerate(['Vendedor', 'Vendas', 'Item', 'Comissao', 'Valor']):
+        for i, v in enumerate(['Vendedor', 'Vendas', 'Comissao', 'Valor']):
             sell = ctk.CTkLabel(frame_principal, text=v, font=('Arial', 24))
             sell.grid(row=0, column=i, pady=10, padx=10, sticky='ew')
         # Configurando valores dos Tópicos
         for i in range(0, len(dataFrame)):
-            for p, v in enumerate(['vendedor', 'vendas', 'item', 'comissao', 'valor']):
+            for p, v in enumerate(['nome', 'vendas', 'comissao', 'valor']):
                 lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, v]}", font=('Arial', 28))
                 lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
 
     def Upload():
+
+
+
+        def vendedor_list(Vendedor_atual):
+            nonlocal frame_1
+            nonlocal second_frame
+
+            vendedor_atual = Vendedor_atual
+            print(vendedor_atual)
+
+
+            for i in frame_1.winfo_children():
+                i.destroy()
+            second_frame = ctk.CTkFrame(frame_1, width=200, height=200, fg_color='purple')
+            second_frame.grid(row=0, column=0, pady=80)
+            # Configurando para o second frame virar um drag and drop e ficar visivel
+            second_frame.configure(fg_color='purple')
+            dndfiles(second_frame, singular=True)
+            frame_1.grid_rowconfigure(1,weight=1)
+            frame_1.grid_columnconfigure(0,weight=1)
+            frame_vendedor_xlsx = ctk.CTkScrollableFrame(frame_1, width=1000, height=330, fg_color='purple')
+            frame_vendedor_xlsx.grid(row=1, column=0, sticky='se', columnspan=2)
+            for i, v in enumerate(['Vendedor', 'Vendas', 'Comissao', 'Valor']):
+                sell = ctk.CTkLabel(frame_vendedor_xlsx, text=v, font=('Arial', 24))
+                sell.grid(row=0, column=i, pady=10, padx=50, sticky='ew')
+            # Configurando valores dos Tópicos
+            vendedor_db = pd.read_csv(f'./vendedores/{Login_atual}/{vendedor_atual}/{vendedor_atual}-tab.csv')
+            print(vendedor_db)
+            for i in range(0, len(vendedor_db)):
+                for p, v in enumerate(['nome', 'vendas', 'comissao', 'valor']):
+                    lastsell = ctk.CTkLabel(frame_vendedor_xlsx, text=f"{vendedor_db.loc[i, v]}", font=('Arial', 28))
+                    lastsell.grid(column=p, row=i + 1, pady=10, padx=50, sticky='ew')
+
+
+
+
+
         nonlocal frame_1
+
         for i in frame_1.winfo_children():
             i.destroy()
+
+        frame_principal = ctk.CTkScrollableFrame(frame_1, fg_color='transparent', width=1000, height=330)
+        frame_principal.grid(row=1, column=0, sticky='se')
+        # Configurando as colunas do frame
+        for i in range(0, 4):
+            frame_principal.grid_columnconfigure(i, weight=1)
+        vendedores_existentes = []
+        for i, v in enumerate(dataFrame['nome']):
+            if v not in vendedores_existentes:
+                vendedores_existentes.append(v)
+                btn_vendedor = ctk.CTkButton(frame_principal, width=1000, height=20, command=lambda i=i: vendedor_list(dataFrame.loc[i, 'nome']), text=v)
+                btn_vendedor.grid(row=i, column=0, sticky='ew')
 
         second_frame = ctk.CTkFrame(frame_1, width=200, height=200, fg_color='purple')
         second_frame.grid(row=0, column=0, pady=80)
         #Configurando para o second frame virar um drag and drop e ficar visivel
         second_frame.configure(fg_color='purple')
-        dndfiles(second_frame)
+        dndfiles(second_frame, singular=False)
 
     menu = TkinterDnD.Tk()
     menu.configure(bg='gray')
@@ -213,11 +266,13 @@ def menu(dataFrame):
     menu.mainloop()
 
 class dndfiles:
-    def __init__(self, root):
+    def __init__(self, root, singular):
         self.frame = root
         self.frame.drop_target_register(DND_FILES)
-        self.frame.dnd_bind('<<Drop>>', self.on_drop)
-
+        if not singular:
+            self.frame.dnd_bind('<<Drop>>', self.on_drop)
+        else:
+            self.frame.dnd_bind('<<Drop>>', self.on_drop_singular)
 
     def on_drop(self, event):
         """Função chamada quando arquivos são soltos no frame."""
@@ -225,3 +280,9 @@ class dndfiles:
         files = self.frame.tk.splitlist(event.data)
         print(files)
         F.upload_data_geral(files, login_atual=Login_atual)
+    def on_drop_singular(self, event):
+        """Função chamada quando arquivos são soltos no frame."""
+        # Extrair o caminho dos arquivos
+        files = self.frame.tk.splitlist(event.data)
+        print(files)
+        F.upload_data_singular(files, login_atual=Login_atual, vendedor_atual=vendedor_atual)
