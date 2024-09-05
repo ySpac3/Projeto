@@ -162,19 +162,17 @@ def menu(dataFrame):
         for i, v in enumerate(['Vendedor', 'Vendas', 'Comissao', 'Valor']):
             sell = ctk.CTkLabel(frame_principal, text=v, font=('Arial', 24))
             sell.grid(row=0, column=i, pady=10, padx=10, sticky='ew')
-        # Configurando valores dos Tópicos
+            # Configurando valores dos Tópicos
         for i in range(0, len(dataFrame)):
             for p, v in enumerate(['nome', 'vendas', 'comissao', 'valor']):
                 lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, v]}", font=('Arial', 28))
                 lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
-
     def Upload():
-
-
 
         def vendedor_list(Vendedor_atual):
             nonlocal frame_1
             nonlocal second_frame
+            global vendedor_atual
 
             vendedor_atual = Vendedor_atual
             print(vendedor_atual)

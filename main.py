@@ -32,7 +32,6 @@ while True:
 
                 login_atual = db.loc[db['email'] == email, 'nome'].values[0]
                 dataFrame = pd.read_csv(f'./vendedores/{login_atual}/{login_atual}-tab.csv')
-                print(dataFrame)
 
                 G.menu(dataFrame)
 
