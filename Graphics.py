@@ -8,7 +8,6 @@ import verificacao as SQLInjection
 import os
 import Functions as F
 
-db = pd.read_csv('./data/logins.csv')
 
 Login_atual = ''
 vendedor_atual = ''
@@ -24,6 +23,7 @@ class login_UI:
         #Você pode achar isso estranho, mas quando eu utilizava essa variavel direto na função por algum motivo o programa só ignorava
         self.error = error
     def inicial_login_ui(self):
+        db = pd.read_csv('./data/logins.csv')
         #declarando Funções
         def logar():
             self.email = user_entry.get()
@@ -79,7 +79,10 @@ class login_UI:
         login_window.mainloop()
         if self.log:
             global Login_atual
-            Login_atual = db.loc[db['email'] == self.email, 'nome'].values[0]
+            try:
+                Login_atual = db.loc[db['email'] == self.email, 'nome'].values[0]
+            except:
+                pass
             return self.email, self.passwords, self.reg
 
         if self.reg:
@@ -107,7 +110,7 @@ class login_UI:
                 email_entry.configure(border_color='red')
 
 
-        # Criando a tela de Login
+
         register_window = ctk.CTk()
         register_window.geometry('350x300')
         register_window.resizable(width=False, height=False)
@@ -189,7 +192,6 @@ def menu(dataFrame):
             frame_1.grid_columnconfigure(0,weight=1)
             frame_vendedor_xlsx = ctk.CTkScrollableFrame(frame_1, width=1000, height=330, fg_color='transparent')
             frame_vendedor_xlsx.grid(row=1, column=0, sticky='sew', columnspan=2)
-            frame_vendedor_xlsx.grid_columnconfigure(column=0)
             for i, v in enumerate(['Vendedor', 'Vendas', 'Comissao', 'Valor']):
                 sell = ctk.CTkLabel(frame_vendedor_xlsx, text=v, font=('Arial', 24))
                 sell.grid(row=0, column=i, pady=10, padx=50, sticky='new')
@@ -200,11 +202,6 @@ def menu(dataFrame):
                 for p, v in enumerate(['nome', 'vendas', 'comissao', 'valor']):
                     lastsell = ctk.CTkLabel(frame_vendedor_xlsx, text=f"{vendedor_db.loc[i, v]}", font=('Arial', 28))
                     lastsell.grid(column=p, row=i + 1, pady=10, padx=50, sticky='new')
-
-
-
-
-
         nonlocal frame_1
 
         for i in frame_1.winfo_children():
@@ -228,6 +225,33 @@ def menu(dataFrame):
         #Configurando para o second frame virar um drag and drop e ficar visivel
         second_frame.configure(fg_color='purple')
         dndfiles(second_frame, singular=False)
+    def Vendedor():
+        nonlocal frame_1
+
+        def Cadastrar():
+            nonlocal frame_1
+            def cadastro():
+                F.criarVendedores(Login_atual, nome_vendedor.get())
+
+            for i in frame_1.winfo_children():
+                i.destroy()
+            frame_1.grid_rowconfigure(1, weight=0)
+            frame_1.grid_columnconfigure(0,weight=1)
+            spacer = ctk.CTkLabel(frame_1, text="", height=200)  # Define a altura do espaçamento
+            spacer.grid(row=0, column=0, sticky='ew')
+            nome_vendedor = ctk.CTkEntry(frame_1, placeholder_text='Nome do Vendedor')
+            nome_vendedor.grid(row=1, column=0, sticky='')
+            btn_vendcadastrar = ctk.CTkButton(frame_1, text='Cadastrar', command=cadastro)
+            btn_vendcadastrar.grid(row=2, column=0, sticky='')
+
+        for i in frame_1.winfo_children():
+            i.destroy()
+        btn_cadastrar = ctk.CTkButton(frame_1, text='Cadastrar Vendedor', command=Cadastrar)
+        btn_cadastrar.grid(column=0, row=0, sticky='', pady=60)
+        btn_deletar = ctk.CTkButton(frame_1, text='Deletar')
+        btn_deletar.grid(column=0, row=1, sticky='', pady=60)
+
+
 
     menu = TkinterDnD.Tk()
     menu.configure(bg='gray')
@@ -257,9 +281,12 @@ def menu(dataFrame):
     btn_menu.grid(row=0,column=0, sticky='ew',pady=10,ipady=10)
     btn_upload = ctk.CTkButton(btn_frame, fg_color='transparent', text='Menu Upload', font=('Arial', 24), command=Upload)
     btn_upload.grid(row=1, column=0, sticky='ew', ipady=10,)
+    btn_vendedores = ctk.CTkButton(btn_frame, fg_color='transparent', text='vendedores', font=('Arial', 24), command=Vendedor)
+    btn_vendedores.grid(row=2, column=0, sticky='ew', ipady=10)
+
     #botão debug
     btn_debug = ctk.CTkButton(btn_frame,fg_color='transparent', text='DEBUG', command=DEBUG)
-    btn_debug.grid(row=2,column=0)
+    btn_debug.grid(row=3,column=0)
 
     menu.grid_rowconfigure(1, weight=0)
     menu.grid_columnconfigure(0, weight=1)
