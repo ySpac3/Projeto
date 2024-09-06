@@ -155,7 +155,8 @@ def menu(dataFrame):
         nonlocal frame_1
         for i in frame_1.winfo_children():
             i.destroy()
-
+        frame_1.grid_rowconfigure(0, weight=1)
+        frame_1.grid_columnconfigure(0, weight=1)
         frame_principal = ctk.CTkScrollableFrame(frame_1, fg_color='transparent', width=1000, height=330)
         frame_principal.grid(row=1, column=0, sticky='sew')
         # Configurando as colunas do frame
@@ -273,6 +274,7 @@ def menu(dataFrame):
 
         frame_1.grid_rowconfigure(0,weight=0)
         frame_1.grid_rowconfigure(1, weight=0)
+
 
         for i in frame_1.winfo_children():
             i.destroy()
