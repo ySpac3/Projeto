@@ -12,6 +12,8 @@ from PIL import Image, ImageTk
 
 Login_atual = ''
 vendedor_atual = ''
+vendedor_db = ''
+funçao = ''
 
 class login_UI:
     def __init__(self, error=False):
@@ -155,6 +157,9 @@ def menu():
 
     def Principal():
         nonlocal frame_1
+        global funçao
+        funçao = Principal
+
         for i in frame_1.winfo_children():
             if i != btn_reload:
                 i.destroy()
@@ -167,19 +172,22 @@ def menu():
             frame_principal.grid_columnconfigure(i, weight=1)
         # Configurando tópicos
         for i, v in enumerate(['Vendedor', 'Vendas', 'Comissao', 'Valor']):
-            sell = ctk.CTkLabel(frame_principal, text=v, font=('Arial', 24))
+            sell = ctk.CTkLabel(frame_principal,fg_color='#433c68',corner_radius=30,  text=v, font=('Arial', 24))
             sell.grid(row=0, column=i, pady=10, padx=10, sticky='ew')
             # Configurando valores dos Tópicos
         for i in range(0, len(dataFrame)):
             for p, v in enumerate(['nome', 'vendas', 'comissao', 'valor']):
-                lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, v]}", font=('Arial', 28))
+                lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, v]}", fg_color='#433c68', corner_radius=30,font=('Arial', 28))
                 lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
     def Upload():
+        global funçao
+        funçao = Upload
 
         def vendedor_list(Vendedor_atual):
             nonlocal frame_1
             nonlocal second_frame
             global vendedor_atual
+            global vendedor_db
 
             vendedor_atual = Vendedor_atual
             print(vendedor_atual)
@@ -199,14 +207,15 @@ def menu():
             frame_vendedor_xlsx.grid(row=1, column=0, sticky='sew', columnspan=2)
             for i, v in enumerate(['Vendedor', 'Vendas', 'Comissao', 'Valor']):
                 sell = ctk.CTkLabel(frame_vendedor_xlsx, text=v, font=('Arial', 24))
-                sell.grid(row=0, column=i, pady=10, padx=50, sticky='new')
+                frame_vendedor_xlsx.grid_columnconfigure(i,weight=1)
+                sell.grid(row=0, column=i, pady=10, padx=10, sticky='new')
             # Configurando valores dos Tópicos
-            vendedor_db = pd.read_csv(f'./vendedores/{Login_atual}/{vendedor_atual}/{vendedor_atual}-tab.csv')
+            vendedor_db = F.queryVendedores(Login_atual, vendedor_atual)
             print(vendedor_db)
             for i in range(0, len(vendedor_db)):
                 for p, v in enumerate(['nome', 'vendas', 'comissao', 'valor']):
                     lastsell = ctk.CTkLabel(frame_vendedor_xlsx, text=f"{vendedor_db.loc[i, v]}", font=('Arial', 28))
-                    lastsell.grid(column=p, row=i + 1, pady=10, padx=50, sticky='new')
+                    lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
         nonlocal frame_1
 
         for i in frame_1.winfo_children():
@@ -233,13 +242,15 @@ def menu():
         dndfiles(second_frame, singular=False)
     def Vendedor():
         nonlocal frame_1
-
+        global funçao
+        funçao = Vendedor
         def Cadastrar():
             nonlocal frame_1
 
             def cadastro():
 
                 F.criarVendedores(Login_atual, nome_vendedor.get())
+                Principal()
 
             for i in frame_1.winfo_children():
                 if i != btn_reload:
@@ -283,7 +294,7 @@ def menu():
                 if v not in vendedores_existentes:
                     vendedores_existentes.append(v)
                     btn_vendedor = ctk.CTkButton(frame_principal, width=1100, height=20,
-                                                 command=lambda: Delete_confirm(dataFrame.loc[i, 'nome']), text=v)
+                                                 command=lambda i=i: Delete_confirm(dataFrame.loc[i, 'nome']), text=v)
                     btn_vendedor.grid(row=i, column=0, sticky='new')
 
         frame_1.grid_rowconfigure(0,weight=0)
@@ -299,20 +310,23 @@ def menu():
         btn_deletar.grid(column=0, row=1, sticky='', pady=60)
     def Atualizar():
         nonlocal dataFrame
-        dataFrame = pd.read_csv(f'./vendedores/{Login_atual}/{Login_atual}-tab.csv')
+        global vendedor_db
+        global vendedor_atual
 
+        dataFrame = pd.read_csv(f'./vendedores/{Login_atual}/{Login_atual}-tab.csv')
+        vendedor_db = F.queryVendedores(Login_atual,vendedor_atual)
+        funçao()
 
 
 
     menu = TkinterDnD.Tk()
-    menu.configure(bg='gray')
+    menu.configure(bg='#353048')
     menu.geometry('1280x720')
 
     menu.grid_rowconfigure(0, weight=1)
     menu.grid_rowconfigure(1, weight=0)
     menu.grid_columnconfigure(0, weight=1, minsize=180)
     menu.grid_columnconfigure(1, weight=1, minsize=1100)
-    menu.grid_columnconfigure(1, weight=1)
 
     #Começando no menu principal
     frame_1 = ctk.CTkFrame(menu, fg_color='transparent', width=1100)
@@ -323,7 +337,7 @@ def menu():
 
 
     #Criando Frame de botões de menu
-    btn_frame = ctk.CTkFrame(menu, fg_color='teal', width=250)
+    btn_frame = ctk.CTkFrame(menu, fg_color='#433c68', width=250)
     btn_frame.grid(row=0, column=0, sticky='nsew', rowspan=2)
     btn_frame.grid_columnconfigure(0,weight=1)
 

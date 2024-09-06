@@ -41,11 +41,6 @@ while True:
                 while True:
                     userInput = input('Digite um numero')
                     match userInput:
-                        case '3':
-                            nomeDoVendedor = input('Digite o Nome do Novo Vendedor -> ').replace(' ', '-')
-                            F.criarVendedores(login=login_atual, nomeDoVendedor=nomeDoVendedor)
-
-
                     # Busca pelo conteúdo da tabela do vendedor
                         case '4':
                             nomeDoVendedor = input('Insira o Nome do Vendedor -> ').replace(' ', '-')
