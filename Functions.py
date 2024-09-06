@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-
+import shutil
 
 def upload_data_geral(path, login_atual):
     xlsx = path[0]
@@ -101,6 +101,13 @@ def criarVendedores(login: str, nomeDoVendedor: str) -> None:
         tb.write('nome,vendas,comissao,valor')
     with open(f'./vendedores/{login}/{login}-tab.csv', 'a') as tb:
         tb.write(f'\n{nomeDoVendedor},{0},{0},{0}')
+
+def deletarVendedores(login: str, nomeDoVendedor: str) -> None:
+        db = pd.read_csv(f'./vendedores/{login}/{login}-tab.csv')
+        db = db[db['nome'] != f'{nomeDoVendedor}']
+        db.to_csv(f'./vendedores/{login}/{login}-tab.csv', index=False)
+        shutil.rmtree(f'./vendedores/{login}/{nomeDoVendedor}')
+
 
 # Função que retorn a tabela do vendedor
 def queryVendedores(login: str, nomeDoVendedor: str) -> pd.DataFrame:

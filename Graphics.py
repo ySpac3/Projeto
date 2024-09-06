@@ -243,13 +243,44 @@ def menu(dataFrame):
             nome_vendedor.grid(row=1, column=0, sticky='')
             btn_vendcadastrar = ctk.CTkButton(frame_1, text='Cadastrar', command=cadastro)
             btn_vendcadastrar.grid(row=2, column=0, sticky='')
+        def Deletar():
+            def Delete_confirm(Vendedor_Atual):
+                nonlocal frame_1
+                def Delete(vendedor):
+                    F.deletarVendedores(Login_atual,vendedor)
+                    Vendedor()
+                for i in frame_1.winfo_children():
+                    i.destroy()
+                btn_confirm = ctk.CTkButton(frame_1, text=f'Deletar {Vendedor_Atual}?', command=lambda: Delete(Vendedor_Atual))
+                btn_confirm.grid(row=0, column=0, sticky='')
+
+            nonlocal frame_1
+
+            for i in frame_1.winfo_children():
+                i.destroy()
+            frame_1.grid_rowconfigure(0,weight=1)
+            frame_1.grid_columnconfigure(0,weight=1)
+            frame_principal = ctk.CTkScrollableFrame(frame_1, fg_color='purple')
+            frame_principal.grid(row=0, column=0, sticky='nsew')
+            frame_principal.grid_columnconfigure(0, weight=1)
+            vendedores_existentes = []
+            for i, v in enumerate(dataFrame['nome']):
+                if v not in vendedores_existentes:
+                    vendedores_existentes.append(v)
+                    btn_vendedor = ctk.CTkButton(frame_principal, width=1100, height=20,
+                                                 command=lambda: Delete_confirm(dataFrame.loc[i, 'nome']), text=v)
+                    btn_vendedor.grid(row=i, column=0, sticky='new')
+
+        frame_1.grid_rowconfigure(0,weight=0)
+        frame_1.grid_rowconfigure(1, weight=0)
 
         for i in frame_1.winfo_children():
             i.destroy()
         btn_cadastrar = ctk.CTkButton(frame_1, text='Cadastrar Vendedor', command=Cadastrar)
         btn_cadastrar.grid(column=0, row=0, sticky='', pady=60)
-        btn_deletar = ctk.CTkButton(frame_1, text='Deletar')
+        btn_deletar = ctk.CTkButton(frame_1, text='Deletar', command=Deletar)
         btn_deletar.grid(column=0, row=1, sticky='', pady=60)
+
 
 
 
