@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import shutil
+import re
 
 def upload_data_geral(path, login_atual):
     xlsx = path[0]
@@ -103,10 +104,12 @@ def criarVendedores(login: str, nomeDoVendedor: str) -> None:
         tb.write(f'\n{nomeDoVendedor},{0},{0},{0}')
 
 def deletarVendedores(login: str, nomeDoVendedor: str) -> None:
-        db = pd.read_csv(f'./vendedores/{login}/{login}-tab.csv')
-        db = db[db['nome'] != f'{nomeDoVendedor}']
-        db.to_csv(f'./vendedores/{login}/{login}-tab.csv', index=False)
-        shutil.rmtree(f'./vendedores/{login}/{nomeDoVendedor}')
+    # Erro de Indentação, Você Usou dois TABs
+    # Tenho quase certeza que o certo é "db = pd.read_csv(f'./vendedores/{login}/{nomeDoVendedor}/{nomeDoVendedor}-tab.csv')"
+    db = pd.read_csv(f'./vendedores/{login}/{login}-tab.csv')
+    db = db[db['nome'] != f'{nomeDoVendedor}']
+    db.to_csv(f'./vendedores/{login}/{login}-tab.csv', index=False)
+    shutil.rmtree(f'./vendedores/{login}/{nomeDoVendedor}')
 
 
 # Função que retorn a tabela do vendedor
@@ -117,9 +120,19 @@ def queryVendedores(login: str, nomeDoVendedor: str) -> pd.DataFrame:
         return pd.read_csv(f'./vendedores/{login}/{nomeDoVendedor}/{nomeDoVendedor}-tab.csv')
     else:
         return pd.DataFrame()
+
+
 def criar_login(user):
     nomeDoLogin = user
     os.makedirs(f'./vendedores/{nomeDoLogin}', exist_ok=True)
 
     with open(f'./vendedores/{nomeDoLogin}/{nomeDoLogin}-tab.csv', 'w') as tb:
         tb.write('nome,vendas,comissao,valor')
+
+# Função Para Verificar Se um E-mail é válido, favor invocar esta função ao se registrar
+def verificarEmail(email: str) -> bool:
+    padrao = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    if re.match(padrao, email):
+        return True
+
+    return False
