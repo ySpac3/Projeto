@@ -7,6 +7,7 @@ import tkinter
 import verificacao as SQLInjection
 import os
 import Functions as F
+from PIL import Image, ImageTk
 
 
 Login_atual = ''
@@ -143,7 +144,8 @@ class login_UI:
         if reg:
             return self.users, self.passwords, self.email
 
-def menu(dataFrame):
+def menu():
+    dataFrame = pd.read_csv(f'./vendedores/{Login_atual}/{Login_atual}-tab.csv')
 
     click = False
 
@@ -154,7 +156,8 @@ def menu(dataFrame):
     def Principal():
         nonlocal frame_1
         for i in frame_1.winfo_children():
-            i.destroy()
+            if i != btn_reload:
+                i.destroy()
         frame_1.grid_rowconfigure(0, weight=1)
         frame_1.grid_columnconfigure(0, weight=1)
         frame_principal = ctk.CTkScrollableFrame(frame_1, fg_color='transparent', width=1000, height=330)
@@ -183,7 +186,8 @@ def menu(dataFrame):
 
 
             for i in frame_1.winfo_children():
-                i.destroy()
+                if i != btn_reload:
+                    i.destroy()
             second_frame = ctk.CTkFrame(frame_1, width=200, height=200, fg_color='purple')
             second_frame.grid(row=0, column=0, pady=80)
             # Configurando para o second frame virar um drag and drop e ficar visivel
@@ -206,7 +210,8 @@ def menu(dataFrame):
         nonlocal frame_1
 
         for i in frame_1.winfo_children():
-            i.destroy()
+            if i != btn_reload:
+                i.destroy()
 
         frame_principal = ctk.CTkScrollableFrame(frame_1, fg_color='transparent', width=1000, height=330)
         frame_principal.grid(row=1, column=0, sticky='sew')
@@ -231,19 +236,26 @@ def menu(dataFrame):
 
         def Cadastrar():
             nonlocal frame_1
+
             def cadastro():
+
                 F.criarVendedores(Login_atual, nome_vendedor.get())
 
             for i in frame_1.winfo_children():
-                i.destroy()
+                if i != btn_reload:
+                    i.destroy()
+            frame_1.grid_rowconfigure(0,weight=0)
             frame_1.grid_rowconfigure(1, weight=0)
+            frame_1.grid_rowconfigure(2, weight=0)
             frame_1.grid_columnconfigure(0,weight=1)
+
+
             spacer = ctk.CTkLabel(frame_1, text="", height=200)  # Define a altura do espaçamento
-            spacer.grid(row=0, column=0, sticky='ew')
+            spacer.grid(row=1, column=0, sticky='ew')
             nome_vendedor = ctk.CTkEntry(frame_1, placeholder_text='Nome do Vendedor')
-            nome_vendedor.grid(row=1, column=0, sticky='')
+            nome_vendedor.grid(row=2, column=0, sticky='')
             btn_vendcadastrar = ctk.CTkButton(frame_1, text='Cadastrar', command=cadastro)
-            btn_vendcadastrar.grid(row=2, column=0, sticky='')
+            btn_vendcadastrar.grid(row=3, column=0, sticky='')
         def Deletar():
             def Delete_confirm(Vendedor_Atual):
                 nonlocal frame_1
@@ -251,14 +263,16 @@ def menu(dataFrame):
                     F.deletarVendedores(Login_atual,vendedor)
                     Vendedor()
                 for i in frame_1.winfo_children():
-                    i.destroy()
+                    if i != btn_reload:
+                        i.destroy()
                 btn_confirm = ctk.CTkButton(frame_1, text=f'Deletar {Vendedor_Atual}?', command=lambda: Delete(Vendedor_Atual))
                 btn_confirm.grid(row=0, column=0, sticky='')
 
             nonlocal frame_1
 
             for i in frame_1.winfo_children():
-                i.destroy()
+                if i != btn_reload:
+                    i.destroy()
             frame_1.grid_rowconfigure(0,weight=1)
             frame_1.grid_columnconfigure(0,weight=1)
             frame_principal = ctk.CTkScrollableFrame(frame_1, fg_color='purple')
@@ -277,11 +291,15 @@ def menu(dataFrame):
 
 
         for i in frame_1.winfo_children():
-            i.destroy()
+            if i != btn_reload:
+                i.destroy()
         btn_cadastrar = ctk.CTkButton(frame_1, text='Cadastrar Vendedor', command=Cadastrar)
         btn_cadastrar.grid(column=0, row=0, sticky='', pady=60)
         btn_deletar = ctk.CTkButton(frame_1, text='Deletar', command=Deletar)
         btn_deletar.grid(column=0, row=1, sticky='', pady=60)
+    def Atualizar():
+        nonlocal dataFrame
+        dataFrame = pd.read_csv(f'./vendedores/{Login_atual}/{Login_atual}-tab.csv')
 
 
 
@@ -319,7 +337,10 @@ def menu(dataFrame):
 
     #botão debug
     btn_debug = ctk.CTkButton(btn_frame,fg_color='transparent', text='DEBUG', command=DEBUG)
-    btn_debug.grid(row=3,column=0)
+    btn_debug.grid(row=3, column=0)
+
+    btn_reload = ctk.CTkButton(frame_1, text='Atualizar Pagina',command=Atualizar)
+    btn_reload.grid(row=0, column=0, sticky='ne')
 
     menu.grid_rowconfigure(1, weight=0)
     menu.grid_columnconfigure(0, weight=1)

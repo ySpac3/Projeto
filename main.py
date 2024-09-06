@@ -12,17 +12,21 @@ while True:
     email, senha, reg = G.login_UI().inicial_login_ui()
 
     login = False
+
     while True:
         if db['email'].isin([email]).any():
-            pssword = db.loc[db['email'] == email, 'senha'].values[0]
-            if pssword == senha:
-                login = True
+            vemail = F.verificarEmail(email)
+            if vemail:
+                pssword = db.loc[db['email'] == email, 'senha'].values[0]
+                if pssword == senha:
+                    login = True
 
+                else:
+                    # Ao usar uma string em um if ele já verifica se ela foi preenchida
+                    if email or senha:
+                        email, senha, reg = G.login_UI(error=True).inicial_login_ui()
             else:
-                # Ao usar uma string em um if ele já verifica se ela foi preenchida
-                if email or senha:
-                    email, senha, reg = G.login_UI(error=True).inicial_login_ui()
-
+                email, senha, reg = G.login_UI(error=True).inicial_login_ui()
 
         else:
             if email or senha:
@@ -32,9 +36,7 @@ while True:
 
                 login_atual = db.loc[db['email'] == email, 'nome'].values[0]
 
-                dataFrame = pd.read_csv(f'./vendedores/{login_atual}/{login_atual}-tab.csv')
-
-                G.menu(dataFrame)
+                G.menu()
 
                 while True:
                     userInput = input('Digite um numero')

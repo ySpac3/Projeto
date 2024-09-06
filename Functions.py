@@ -105,7 +105,7 @@ def criarVendedores(login: str, nomeDoVendedor: str) -> None:
 
 def deletarVendedores(login: str, nomeDoVendedor: str) -> None:
     # Erro de Indentação, Você Usou dois TABs
-    # Tenho quase certeza que o certo é "db = pd.read_csv(f'./vendedores/{login}/{nomeDoVendedor}/{nomeDoVendedor}-tab.csv')"
+    #Isso serve para remover os registros do vendedor deletado das tabelas"
     db = pd.read_csv(f'./vendedores/{login}/{login}-tab.csv')
     db = db[db['nome'] != f'{nomeDoVendedor}']
     db.to_csv(f'./vendedores/{login}/{login}-tab.csv', index=False)
@@ -120,16 +120,12 @@ def queryVendedores(login: str, nomeDoVendedor: str) -> pd.DataFrame:
         return pd.read_csv(f'./vendedores/{login}/{nomeDoVendedor}/{nomeDoVendedor}-tab.csv')
     else:
         return pd.DataFrame()
-
-
 def criar_login(user):
     nomeDoLogin = user
     os.makedirs(f'./vendedores/{nomeDoLogin}', exist_ok=True)
 
     with open(f'./vendedores/{nomeDoLogin}/{nomeDoLogin}-tab.csv', 'w') as tb:
         tb.write('nome,vendas,comissao,valor')
-
-# Função Para Verificar Se um E-mail é válido, favor invocar esta função ao se registrar
 def verificarEmail(email: str) -> bool:
     padrao = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     if re.match(padrao, email):
