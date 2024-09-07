@@ -190,20 +190,21 @@ def menu():
             global vendedor_db
 
             vendedor_atual = Vendedor_atual
-            print(vendedor_atual)
-
 
             for i in frame_1.winfo_children():
                 if i != btn_reload:
                     i.destroy()
-            second_frame = ctk.CTkFrame(frame_1, width=200, height=200, fg_color='purple')
+            second_frame = ctk.CTkFrame(frame_1, width=200, height=200, fg_color='transparent', border_color='#433c68',
+                                        border_width=3, )
             second_frame.grid(row=0, column=0, pady=80)
+            dnd_label = ctk.CTkLabel(second_frame, text='Arraste seus arquivos arquivo .xlsx aqui',
+                                     bg_color='transparent', text_color='#433c68', font=('Arial', 24))
+            dnd_label.grid(row=0, column=0, pady=80)
             # Configurando para o second frame virar um drag and drop e ficar visivel
-            second_frame.configure(fg_color='purple')
             dndfiles(second_frame, singular=True)
             frame_1.grid_rowconfigure(1,weight=1)
             frame_1.grid_columnconfigure(0,weight=1)
-            frame_vendedor_xlsx = ctk.CTkScrollableFrame(frame_1, width=1000, height=330, fg_color='transparent')
+            frame_vendedor_xlsx = ctk.CTkScrollableFrame(frame_1, width=1000, height=330, fg_color='transparent',)
             frame_vendedor_xlsx.grid(row=1, column=0, sticky='sew', columnspan=2)
             for i, v in enumerate(['Vendedor', 'Vendas', 'Comissao', 'Valor']):
                 sell = ctk.CTkLabel(frame_vendedor_xlsx, text=v, font=('Arial', 24))
@@ -211,7 +212,6 @@ def menu():
                 sell.grid(row=0, column=i, pady=10, padx=10, sticky='new')
             # Configurando valores dos Tópicos
             vendedor_db = F.queryVendedores(Login_atual, vendedor_atual)
-            print(vendedor_db)
             for i in range(0, len(vendedor_db)):
                 for p, v in enumerate(['nome', 'vendas', 'comissao', 'valor']):
                     lastsell = ctk.CTkLabel(frame_vendedor_xlsx, text=f"{vendedor_db.loc[i, v]}", font=('Arial', 28))
@@ -222,23 +222,34 @@ def menu():
             if i != btn_reload:
                 i.destroy()
 
-        frame_principal = ctk.CTkScrollableFrame(frame_1, fg_color='transparent', width=1000, height=330)
+        frame_principal = ctk.CTkScrollableFrame(frame_1, fg_color='transparent', width=100, height=330)
         frame_principal.grid(row=1, column=0, sticky='sew')
         frame_principal.grid_columnconfigure(0,weight=1)
         # Configurando as colunas do frame
         for i in range(0, 4):
             frame_principal.grid_columnconfigure(i, weight=1)
+        #Criando botões de vendedores
         vendedores_existentes = []
         for i, v in enumerate(dataFrame['nome']):
             if v not in vendedores_existentes:
                 vendedores_existentes.append(v)
-                btn_vendedor = ctk.CTkButton(frame_principal, width=1100, height=20, command=lambda i=i: vendedor_list(dataFrame.loc[i, 'nome']), text=v)
-                btn_vendedor.grid(row=i, column=0, sticky='new')
+                btn_vendedor = ctk.CTkButton(frame_principal,
+                                             width=700,
+                                             height=20,
+                                             command=lambda i=i: vendedor_list(dataFrame.loc[i, 'nome']),
+                                             text=v,
+                                             font=('Arial', 24),
+                                             border_spacing=17,
+                                             corner_radius=100,
+                                             fg_color='#433c68',
+                                             )
+                btn_vendedor.grid(row=i, column=1, sticky='n', columnspan=2, pady=5)
 
-        second_frame = ctk.CTkFrame(frame_1, width=200, height=200, fg_color='purple')
+        second_frame = ctk.CTkFrame(frame_1, width=200, height=200,fg_color='transparent', border_color='#b0a4a4', border_width=3,)
         second_frame.grid(row=0, column=0, pady=80)
+        dnd_label = ctk.CTkLabel(second_frame,text='Arraste seus arquivos arquivo .xlsx aqui',font=('Arial',24), bg_color='transparent', text_color='#b0a4a4')
+        dnd_label.grid(row=0, column=0, pady=80)
         #Configurando para o second frame virar um drag and drop e ficar visivel
-        second_frame.configure(fg_color='purple')
         dndfiles(second_frame, singular=False)
     def Vendedor():
         nonlocal frame_1
@@ -320,7 +331,7 @@ def menu():
 
 
     menu = TkinterDnD.Tk()
-    menu.configure(bg='#353048')
+    menu.configure(bg='#574d6f')
     menu.geometry('1280x720')
 
     menu.grid_rowconfigure(0, weight=1)
@@ -337,7 +348,7 @@ def menu():
 
 
     #Criando Frame de botões de menu
-    btn_frame = ctk.CTkFrame(menu, fg_color='#433c68', width=250)
+    btn_frame = ctk.CTkFrame(menu, fg_color='#3a3053', width=250)
     btn_frame.grid(row=0, column=0, sticky='nsew', rowspan=2)
     btn_frame.grid_columnconfigure(0,weight=1)
 
@@ -346,7 +357,7 @@ def menu():
     btn_menu.grid(row=0,column=0, sticky='ew',pady=10,ipady=10)
     btn_upload = ctk.CTkButton(btn_frame, fg_color='transparent', text='Menu Upload', font=('Arial', 24), command=Upload)
     btn_upload.grid(row=1, column=0, sticky='ew', ipady=10,)
-    btn_vendedores = ctk.CTkButton(btn_frame, fg_color='transparent', text='vendedores', font=('Arial', 24), command=Vendedor)
+    btn_vendedores = ctk.CTkButton(btn_frame, fg_color='transparent', text='Vendedores', font=('Arial', 24), command=Vendedor)
     btn_vendedores.grid(row=2, column=0, sticky='ew', ipady=10)
 
     #botão debug

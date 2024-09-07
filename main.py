@@ -46,35 +46,7 @@ while True:
                             nomeDoVendedor = input('Insira o Nome do Vendedor -> ').replace(' ', '-')
                             test = F.queryVendedores(login='admin',nomeDoVendedor=nomeDoVendedor)
                             print(test)
-                        case '2':
-                            vendedorNome = input('Nome do Vendedor -> ')
-                            dataFrame = pd.read_csv('./data/data.csv')
 
-                            indexDF = len(dataFrame['vendedor'])
-
-                            # Verificador se foi encontrado o vendedor
-                            found = False
-                            for i in range(indexDF):
-                                #Correção: Você estava verificando uma coluna com base no nome do vendedor
-                                if dataFrame.loc[i, 'vendedor'] == vendedorNome:
-                                    print('Vendedor || Vendas || Item || Comissão || Valor')
-                                    found = True
-                                    print(dataFrame.loc[i, 'vendedor'], end=' ')
-                                    print(dataFrame.loc[i, 'vendas'], end=' ')
-                                    print(dataFrame.loc[i, 'comissao'], end=' ')
-                                    print(dataFrame.loc[i, 'valor'])
-
-                        case '0':
-                            break
-
-                        case '?':
-                            print('1 - Upload de Excel')
-                            print('2 - Vendas do Vendedor')
-                            print('0 - Sair')
-                            print('? - Ajuda')
-
-                        case _:
-                            print('Opção Invalida')
         if reg:
             break
 
