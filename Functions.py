@@ -132,3 +132,113 @@ def verificarEmail(email: str) -> bool:
         return True
 
     return False
+
+
+def comisaoGeral(login: str):
+    vendedores = os.listdir(f'./vendedores/{login}')
+    vendedoresRefinado = []
+    for vendedor in vendedores:
+        if os.path.isdir(f'./vendedores/{login}/{vendedor}'):
+            vendedoresRefinado.append(vendedor)
+
+    total = 0
+    for vendedor in vendedoresRefinado:
+        dtf = pd.read_csv(f'./vendedores/{login}/{vendedor}/{vendedor}-tab.csv')
+        for i in range(len(dtf['valor'])):
+            valorIndividual = float(dtf.loc[i, 'valor'])
+            comissaoIndividuo = float(dtf.loc[i, 'comissao'])
+            total += (valorIndividual * comissaoIndividuo)
+            
+    return total
+
+
+def ComissaoIndividiual(login: str, vendedor: str) -> float:
+    valorTotal = 0
+    dtf = pd.read_csv(f'./vendedores/{login}/{vendedor}/{vendedor}-tab.csv')
+    for i in range(len(dtf['comissao'])):
+        valor = float(dtf.loc[i, 'valor'])
+        comissao = float(dtf.loc[i, 'comissao'])
+        valorTotal += (valor * comissao)
+
+    return valorTotal
+
+def vendasPorKit(login: str) -> dict:
+    vendedores = os.listdir(f'./vendedores/{login}')
+    vendedoresRefinado = []
+    for vendedor in vendedores:
+        if os.path.isdir(f'./vendedores/{login}/{vendedor}'):
+            vendedoresRefinado.append(vendedor)
+
+    dictKits = {}
+
+    for vendedor in vendedoresRefinado:
+        dtf = pd.read_csv(f'./vendedores/{login}/{vendedor}/{vendedor}-tab.csv')
+        for i in range(len(dtf['comissao'])):
+            kit = dtf.loc[i, 'kit']
+            vendas = dtf.loc[i, 'vendas']
+            if not kit in dictKits:
+                dictKits[kit] = int(vendas)
+            
+            else:
+                dictKits[kit] = dictKits[kit] + int(vendas)
+
+    return dictKits
+
+def vendasKitPorVendedor(login: str, vendedor: str) -> dict:
+    dictKits = {}
+    dtf = pd.read_csv(f'./vendedores/{login}/{vendedor}/{vendedor}-tab.csv')
+    
+    for i in range(len(dtf['kit'])):
+        kit = dtf.loc[i, 'kit']
+        vendas = dtf.loc[i, 'vendas']
+
+        if not kit in dictKits:
+            dictKits[kit] = int(vendas)
+
+        else:
+            dictKits[kit] = dictKits[kit] + int(vendas)
+
+    return dictKits
+
+def valorVendasGeral(login: str) -> dict:
+    vendedores = os.listdir(f'./vendedores/{login}')
+    vendedoresRefinado = []
+    for vendedor in vendedores:
+        if os.path.isdir(f'./vendedores/{login}/{vendedor}'):
+            vendedoresRefinado.append(vendedor)
+
+    vendasVendedores = {}
+
+    for vendedor in vendedoresRefinado:
+        total = 0
+        dtf = pd.read_csv(f'./vendedores/{login}/{vendedor}/{vendedor}-tab.csv')
+        for i in range(len(dtf['valor'])):
+            total += float(dtf.loc[i, 'valor'])
+        vendasVendedores[vendedor] = total
+
+    return vendasVendedores
+
+def valorVendasVendedor(login: str, vendedor: str) -> float:
+    dtf = pd.read_csv(f'./{login}/{vendedor}/{vendedor}-tab.csv')
+
+    total = 0
+
+    for i in range(len(dtf['valor'])):
+        total += float(dtf.loc[i, 'valor'])
+
+    return total
+
+def separadoPorMes(login: str, vendedor: str, mes: str) -> pd.DataFrame:
+    dtf = pd.read_csv(f'./{login}/{vendedor}/{vendedor}-tab.csv')
+    dtfMes = pd.DataFrame()
+
+    indexFilter = 0
+    for i in range(len(dtf['data'])):
+        if f'/{mes}/'in str(dtf.loc[i, 'data']):
+            dtfMes.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
+            dtfMes.loc[indexFilter, 'vendas'] = dtf.loc[i, 'vendas']
+            dtfMes.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
+            dtfMes.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
+            dtfMes.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
+
+    return dtfMes
