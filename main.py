@@ -42,10 +42,17 @@ while True:
                     userInput = input('Digite um numero')
                     match userInput:
                     # Busca pelo conteúdo da tabela do vendedor
+
+
                         case '4':
-                            nomeDoVendedor = input('Insira o Nome do Vendedor -> ').replace(' ', '-')
-                            test = F.queryVendedores(login='admin',nomeDoVendedor=nomeDoVendedor)
-                            print(test)
+                            for i in range(1,13):
+                                conta_mensal = F.separadoPorMes(f'{login_atual}','testando',f'{i}')
+                                try:
+                                    Comissao = F.vendasKit(conta_mensal)
+                                except:
+                                    Comissao = None
+
+                                print(Comissao)
 
         if reg:
             break

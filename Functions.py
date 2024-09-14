@@ -99,18 +99,17 @@ def criarVendedores(login: str, nomeDoVendedor: str) -> None:
     os.mkdir(f'./vendedores/{login}/{nomeDoVendedor}')
 
     with open(f'./vendedores/{login}/{nomeDoVendedor}/{nomeDoVendedor}-tab.csv', 'w') as tb:
-        tb.write('nome,vendas,comissao,valor')
+        tb.write('vendedor,comprador,kit,valor,comissao,data')
     with open(f'./vendedores/{login}/{login}-tab.csv', 'a') as tb:
-        tb.write(f'\n{nomeDoVendedor},{0},{0},{0}')
+        tb.write(f'\n{nomeDoVendedor},NONE,NONE,{0},{0},{0}')
 
 def deletarVendedores(login: str, nomeDoVendedor: str) -> None:
     # Erro de Indentação, Você Usou dois TABs
     #Isso serve para remover os registros do vendedor deletado das tabelas"
     db = pd.read_csv(f'./vendedores/{login}/{login}-tab.csv')
-    db = db[db['nome'] != f'{nomeDoVendedor}']
+    db = db[db['vendedor'] != f'{nomeDoVendedor}']
     db.to_csv(f'./vendedores/{login}/{login}-tab.csv', index=False)
     shutil.rmtree(f'./vendedores/{login}/{nomeDoVendedor}')
-
 
 # Função que retorn a tabela do vendedor
 def queryVendedores(login: str, nomeDoVendedor: str) -> pd.DataFrame:
@@ -125,7 +124,7 @@ def criar_login(user):
     os.makedirs(f'./vendedores/{nomeDoLogin}', exist_ok=True)
 
     with open(f'./vendedores/{nomeDoLogin}/{nomeDoLogin}-tab.csv', 'w') as tb:
-        tb.write('nome,vendas,comissao,valor')
+        tb.write('vendedor,comprador,kit,valor,comissao,data')
 def verificarEmail(email: str) -> bool:
     padrao = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     if re.match(padrao, email):
@@ -134,93 +133,33 @@ def verificarEmail(email: str) -> bool:
     return False
 
 
-def comisaoGeral(login: str):
-    vendedores = os.listdir(f'./vendedores/{login}')
-    vendedoresRefinado = []
-    for vendedor in vendedores:
-        if os.path.isdir(f'./vendedores/{login}/{vendedor}'):
-            vendedoresRefinado.append(vendedor)
-
-    total = 0
-    for vendedor in vendedoresRefinado:
-        dtf = pd.read_csv(f'./vendedores/{login}/{vendedor}/{vendedor}-tab.csv')
-        for i in range(len(dtf['valor'])):
-            valorIndividual = float(dtf.loc[i, 'valor'])
-            comissaoIndividuo = float(dtf.loc[i, 'comissao'])
-            total += (valorIndividual * comissaoIndividuo)
-            
-    return total
-
-
-def ComissaoIndividiual(login: str, vendedor: str) -> float:
+def Comissao(df) -> float:
     valorTotal = 0
-    dtf = pd.read_csv(f'./vendedores/{login}/{vendedor}/{vendedor}-tab.csv')
-    for i in range(len(dtf['comissao'])):
-        valor = float(dtf.loc[i, 'valor'])
-        comissao = float(dtf.loc[i, 'comissao'])
-        valorTotal += (valor * comissao)
-
+    dtf = df
+    try:
+        for i in range(len(dtf['comissao'])):
+            valor = float(dtf.loc[i, 'valor'])
+            comissao = float(dtf.loc[i, 'comissao'])
+            valorTotal += (valor * comissao)
+    except:
+        return 0
     return valorTotal
 
-def vendasPorKit(login: str) -> dict:
-    vendedores = os.listdir(f'./vendedores/{login}')
-    vendedoresRefinado = []
-    for vendedor in vendedores:
-        if os.path.isdir(f'./vendedores/{login}/{vendedor}'):
-            vendedoresRefinado.append(vendedor)
-
+def vendasKit(df) -> dict:
     dictKits = {}
+    dtf = df
 
-    for vendedor in vendedoresRefinado:
-        dtf = pd.read_csv(f'./vendedores/{login}/{vendedor}/{vendedor}-tab.csv')
-        for i in range(len(dtf['comissao'])):
-            kit = dtf.loc[i, 'kit']
-            vendas = dtf.loc[i, 'vendas']
-            if not kit in dictKits:
-                dictKits[kit] = int(vendas)
-            
-            else:
-                dictKits[kit] = dictKits[kit] + int(vendas)
-
-    return dictKits
-
-def vendasKitPorVendedor(login: str, vendedor: str) -> dict:
-    dictKits = {}
-    dtf = pd.read_csv(f'./vendedores/{login}/{vendedor}/{vendedor}-tab.csv')
-    
     for i in range(len(dtf['kit'])):
         kit = dtf.loc[i, 'kit']
-        vendas = dtf.loc[i, 'vendas']
-
-        if not kit in dictKits:
-            dictKits[kit] = int(vendas)
-
+        if kit not in dictKits:
+            dictKits[kit] = 1
         else:
-            dictKits[kit] = dictKits[kit] + int(vendas)
+            dictKits[kit] += 1
 
     return dictKits
 
-def valorVendasGeral(login: str) -> dict:
-    vendedores = os.listdir(f'./vendedores/{login}')
-    vendedoresRefinado = []
-    for vendedor in vendedores:
-        if os.path.isdir(f'./vendedores/{login}/{vendedor}'):
-            vendedoresRefinado.append(vendedor)
-
-    vendasVendedores = {}
-
-    for vendedor in vendedoresRefinado:
-        total = 0
-        dtf = pd.read_csv(f'./vendedores/{login}/{vendedor}/{vendedor}-tab.csv')
-        for i in range(len(dtf['valor'])):
-            total += float(dtf.loc[i, 'valor'])
-        vendasVendedores[vendedor] = total
-
-    return vendasVendedores
-
-def valorVendasVendedor(login: str, vendedor: str) -> float:
-    dtf = pd.read_csv(f'./{login}/{vendedor}/{vendedor}-tab.csv')
-
+def valorVendas(df) -> float:
+    dtf = df
     total = 0
 
     for i in range(len(dtf['valor'])):
@@ -230,94 +169,32 @@ def valorVendasVendedor(login: str, vendedor: str) -> float:
 
 def separadoPorMes(login: str, vendedor: str, mes: str) -> pd.DataFrame:
     dtf = pd.read_csv(f'./vendedores/{login}/{vendedor}/{vendedor}-tab.csv')
-    dados = {
-        'kit': [],
-        'vendas': [],
-        'comissao': [],
-        'valor': [],
-        'data': []
-    }
     dtfMes = pd.DataFrame()
 
     indexFilter = 0
     for i in range(len(dtf['data'])):
-        if f'/{mes}/'in str(dtf.loc[i, 'data']):
+        if f'/{mes}/' in str(dtf.loc[i, 'data']):
+            dtfMes.loc[indexFilter, 'vendedor'] = dtf.loc[i, 'vendedor']
             dtfMes.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
-            dtfMes.loc[indexFilter, 'vendas'] = dtf.loc[i, 'vendas']
+            dtfMes.loc[indexFilter, 'comprador'] = dtf.loc[i, 'comprador']
+            dtfMes.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
+            dtfMes.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
+            dtfMes.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
+            indexFilter+=1
+
+    return dtfMes
+def separadoPorMesGeral(login: str, mes: str) -> pd.DataFrame:
+    dtf = pd.read_csv(f'./vendedores/{login}/{login}-tab.csv')
+    dtfMes = pd.DataFrame()
+
+    indexFilter = 0
+    for i in range(len(dtf['data'])):
+        if f'/{mes}/' in str(dtf.loc[i, 'data']):
+            dtfMes.loc[indexFilter, 'vendedor'] = dtf.loc[i, 'vendedor']
+            dtfMes.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
+            dtfMes.loc[indexFilter, 'comprador'] = dtf.loc[i, 'vendas']
             dtfMes.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
             dtfMes.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
             dtfMes.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
 
     return dtfMes
-
-def filtroData(login: str, vendedor: str, dia='', mes='', ano=''):
-    dtf = pd.read_csv(f'./vendedores/{login}/{vendedor}/{vendedor}-tab.csv')
-    dados = {
-        'kit': [],
-        'vendas': [],
-        'comissao': [],
-        'valor': [],
-        'data': []
-    }
-    dtfData = pd.DataFrame(dados)
-
-    indexFilter = 0
-    for i in range(len(dtf['data'])):
-        data = dtf.loc[indexFilter, 'data']
-        if ano and mes and dia:
-            if f'{dia}/' in str(data) and f'/{mes}/' in str(data) and f'/{ano}' in str(data):
-                dtfData.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
-                dtfData.loc[indexFilter, 'vendas'] = dtf.loc[i, 'vendas']
-                dtfData.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
-                dtfData.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
-                dtfData.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
-
-        elif ano and mes:
-            if f'/{ano}' in str(data) and f'/{mes}/' in str(data):
-                dtfData.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
-                dtfData.loc[indexFilter, 'vendas'] = dtf.loc[i, 'vendas']
-                dtfData.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
-                dtfData.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
-                dtfData.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
-
-        elif ano and dia:
-            if f'/{ano}' in str(data) and f'{dia}/' in str(data):
-                dtfData.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
-                dtfData.loc[indexFilter, 'vendas'] = dtf.loc[i, 'vendas']
-                dtfData.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
-                dtfData.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
-                dtfData.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
-
-        elif dia and mes:
-            if f'{dia}/' in str(data) and f'/{mes}/' in str(data):
-                dtfData.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
-                dtfData.loc[indexFilter, 'vendas'] = dtf.loc[i, 'vendas']
-                dtfData.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
-                dtfData.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
-                dtfData.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
-
-        elif dia:
-            if f'{dia}/' in str(data):
-                dtfData.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
-                dtfData.loc[indexFilter, 'vendas'] = dtf.loc[i, 'vendas']
-                dtfData.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
-                dtfData.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
-                dtfData.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
-
-        elif mes:
-            if f'/{mes}/' in str(data):
-                dtfData.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
-                dtfData.loc[indexFilter, 'vendas'] = dtf.loc[i, 'vendas']
-                dtfData.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
-                dtfData.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
-                dtfData.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
-
-        elif ano:
-            if f'/{ano}' in str(data):
-                dtfData.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
-                dtfData.loc[indexFilter, 'vendas'] = dtf.loc[i, 'vendas']
-                dtfData.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
-                dtfData.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
-                dtfData.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
-
-    return dtfData

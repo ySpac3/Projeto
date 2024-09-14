@@ -160,7 +160,6 @@ def menu():
         nonlocal frame_1
         global funçao
         funçao = Principal
-
         for i in frame_1.winfo_children():
             if i != btn_reload:
                 i.destroy()
@@ -172,14 +171,15 @@ def menu():
         for i in range(0, 4):
             frame_principal.grid_columnconfigure(i, weight=1)
         # Configurando tópicos
-        for i, v in enumerate(['Vendedor', 'Vendas', 'Comissao', 'Valor']):
+        for i, v in enumerate(['VENDEDOR', 'COMPRADOR', 'KIT', 'VALOR', 'COMISSAO','DATA']):
             sell = ctk.CTkLabel(frame_principal,fg_color='#433c68',corner_radius=30,  text=v, font=('Arial', 24))
             sell.grid(row=0, column=i, pady=10, padx=10, sticky='ew')
             # Configurando valores dos Tópicos
         for i in range(0, len(dataFrame)):
-            for p, v in enumerate(['nome', 'vendas', 'comissao', 'valor']):
+            for p, v in enumerate(['vendedor', 'comprador', 'kit', 'valor', 'comissao','data']):
                 lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, v]}", fg_color='#433c68', corner_radius=30,font=('Arial', 28))
                 lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
+
     def Upload():
         global funçao
         funçao = Upload
@@ -195,11 +195,11 @@ def menu():
             for i in frame_1.winfo_children():
                 if i != btn_reload:
                     i.destroy()
-            second_frame = ctk.CTkFrame(frame_1, width=200, height=200, fg_color='transparent', border_color='#433c68',
+            second_frame = ctk.CTkFrame(frame_1, width=200, height=200, fg_color='transparent', border_color='#b0a4a4',
                                         border_width=3, )
             second_frame.grid(row=0, column=0, pady=80)
             dnd_label = ctk.CTkLabel(second_frame, text='Arraste seus arquivos arquivo .xlsx aqui',
-                                     bg_color='transparent', text_color='#433c68', font=('Arial', 24))
+                                     bg_color='transparent', text_color='#b0a4a4', font=('Arial', 24))
             dnd_label.grid(row=0, column=0, pady=80)
             # Configurando para o second frame virar um drag and drop e ficar visivel
             dndfiles(second_frame, singular=True)
@@ -207,14 +207,14 @@ def menu():
             frame_1.grid_columnconfigure(0,weight=1)
             frame_vendedor_xlsx = ctk.CTkScrollableFrame(frame_1, width=1000, height=330, fg_color='transparent',)
             frame_vendedor_xlsx.grid(row=1, column=0, sticky='sew', columnspan=2)
-            for i, v in enumerate(['Vendedor', 'Vendas', 'Comissao', 'Valor']):
+            for i, v in enumerate(['VENDEDOR', 'COMPRADOR', 'KIT', 'VALOR', 'COMISSAO', 'DATA']):
                 sell = ctk.CTkLabel(frame_vendedor_xlsx, text=v, font=('Arial', 24))
                 frame_vendedor_xlsx.grid_columnconfigure(i,weight=1)
                 sell.grid(row=0, column=i, pady=10, padx=10, sticky='new')
             # Configurando valores dos Tópicos
             vendedor_db = F.queryVendedores(Login_atual, vendedor_atual)
             for i in range(0, len(vendedor_db)):
-                for p, v in enumerate(['nome', 'vendas', 'comissao', 'valor']):
+                for p, v in enumerate(['vendedor', 'comprador', 'kit', 'valor', 'comissao', 'data']):
                     lastsell = ctk.CTkLabel(frame_vendedor_xlsx, text=f"{vendedor_db.loc[i, v]}", font=('Arial', 28))
                     lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
         nonlocal frame_1
@@ -231,13 +231,13 @@ def menu():
             frame_principal.grid_columnconfigure(i, weight=1)
         #Criando botões de vendedores
         vendedores_existentes = []
-        for i, v in enumerate(dataFrame['nome']):
+        for i, v in enumerate(dataFrame['vendedor']):
             if v not in vendedores_existentes:
                 vendedores_existentes.append(v)
                 btn_vendedor = ctk.CTkButton(frame_principal,
                                              width=700,
                                              height=20,
-                                             command=lambda i=i: vendedor_list(dataFrame.loc[i, 'nome']),
+                                             command=lambda i=i: vendedor_list(dataFrame.loc[i, 'vendedor']),
                                              text=v,
                                              font=('Arial', 24),
                                              border_spacing=17,
@@ -302,11 +302,11 @@ def menu():
             frame_principal.grid(row=0, column=0, sticky='nsew')
             frame_principal.grid_columnconfigure(0, weight=1)
             vendedores_existentes = []
-            for i, v in enumerate(dataFrame['nome']):
+            for i, v in enumerate(dataFrame['vendedor']):
                 if v not in vendedores_existentes:
                     vendedores_existentes.append(v)
                     btn_vendedor = ctk.CTkButton(frame_principal, width=1100, height=20,
-                                                 command=lambda i=i: Delete_confirm(dataFrame.loc[i, 'nome']), text=v)
+                                                 command=lambda i=i: Delete_confirm(dataFrame.loc[i, 'vendedor']), text=v)
                     btn_vendedor.grid(row=i, column=0, sticky='new')
 
         frame_1.grid_rowconfigure(0,weight=0)
