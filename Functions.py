@@ -249,3 +249,75 @@ def separadoPorMes(login: str, vendedor: str, mes: str) -> pd.DataFrame:
             dtfMes.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
 
     return dtfMes
+
+def filtroData(login: str, vendedor: str, dia='', mes='', ano=''):
+    dtf = pd.read_csv(f'./vendedores/{login}/{vendedor}/{vendedor}-tab.csv')
+    dados = {
+        'kit': [],
+        'vendas': [],
+        'comissao': [],
+        'valor': [],
+        'data': []
+    }
+    dtfData = pd.DataFrame(dados)
+
+    indexFilter = 0
+    for i in range(len(dtf['data'])):
+        data = dtf.loc[indexFilter, 'data']
+        if ano and mes and dia:
+            if f'{dia}/' in str(data) and f'/{mes}/' in str(data) and f'/{ano}' in str(data):
+                dtfData.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
+                dtfData.loc[indexFilter, 'vendas'] = dtf.loc[i, 'vendas']
+                dtfData.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
+                dtfData.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
+                dtfData.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
+
+        elif ano and mes:
+            if f'/{ano}' in str(data) and f'/{mes}/' in str(data):
+                dtfData.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
+                dtfData.loc[indexFilter, 'vendas'] = dtf.loc[i, 'vendas']
+                dtfData.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
+                dtfData.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
+                dtfData.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
+
+        elif ano and dia:
+            if f'/{ano}' in str(data) and f'{dia}/' in str(data):
+                dtfData.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
+                dtfData.loc[indexFilter, 'vendas'] = dtf.loc[i, 'vendas']
+                dtfData.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
+                dtfData.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
+                dtfData.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
+
+        elif dia and mes:
+            if f'{dia}/' in str(data) and f'/{mes}/' in str(data):
+                dtfData.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
+                dtfData.loc[indexFilter, 'vendas'] = dtf.loc[i, 'vendas']
+                dtfData.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
+                dtfData.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
+                dtfData.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
+
+        elif dia:
+            if f'{dia}/' in str(data):
+                dtfData.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
+                dtfData.loc[indexFilter, 'vendas'] = dtf.loc[i, 'vendas']
+                dtfData.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
+                dtfData.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
+                dtfData.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
+
+        elif mes:
+            if f'/{mes}/' in str(data):
+                dtfData.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
+                dtfData.loc[indexFilter, 'vendas'] = dtf.loc[i, 'vendas']
+                dtfData.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
+                dtfData.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
+                dtfData.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
+
+        elif ano:
+            if f'/{ano}' in str(data):
+                dtfData.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
+                dtfData.loc[indexFilter, 'vendas'] = dtf.loc[i, 'vendas']
+                dtfData.loc[indexFilter, 'comissao'] = dtf.loc[i, 'comissao']
+                dtfData.loc[indexFilter, 'valor'] = dtf.loc[i, 'valor']
+                dtfData.loc[indexFilter, 'data'] = dtf.loc[i, 'data']
+
+    return dtfData
