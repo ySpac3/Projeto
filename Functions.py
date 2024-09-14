@@ -229,7 +229,14 @@ def valorVendasVendedor(login: str, vendedor: str) -> float:
     return total
 
 def separadoPorMes(login: str, vendedor: str, mes: str) -> pd.DataFrame:
-    dtf = pd.read_csv(f'./{login}/{vendedor}/{vendedor}-tab.csv')
+    dtf = pd.read_csv(f'./vendedores/{login}/{vendedor}/{vendedor}-tab.csv')
+    dados = {
+        'kit': [],
+        'vendas': [],
+        'comissao': [],
+        'valor': [],
+        'data': []
+    }
     dtfMes = pd.DataFrame()
 
     indexFilter = 0
