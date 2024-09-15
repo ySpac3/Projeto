@@ -4,7 +4,6 @@ import Graphics as G
 import Functions as F
 
 
-
 #sitema de login
 db = pd.read_csv('./data/logins.csv')
 while True:

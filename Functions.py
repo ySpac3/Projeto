@@ -5,7 +5,6 @@ import re
 
 def upload_data_geral(path, login_atual):
     xlsx = path[0]
-
     if os.path.exists(xlsx):
         # Tentar ler o arquivo Excel
         try:
@@ -14,7 +13,7 @@ def upload_data_geral(path, login_atual):
             print(f"Erro ao ler o arquivo Excel: {e}")
             return
 
-        # Tentar ler o arquivo CSV principal
+        # Caminho para o arquivo CSV principal
         csv_path = f'./vendedores/{login_atual}/{login_atual}-tab.csv'
         if os.path.exists(csv_path):
             dataFrame = pd.read_csv(csv_path)
@@ -26,13 +25,13 @@ def upload_data_geral(path, login_atual):
         indexData = len(dataFrame)
         for i in range(len(excel)):
             try:
-                vendedorg = excel.loc[i, 'vendedor']
+                vendedorg = excel.loc[i, 'vendedor'].upper()
                 compradorg = excel.loc[i, 'comprador']
                 kitg = excel.loc[i, 'kit']
                 valorg = excel.loc[i, 'valor']
                 comissaog = excel.loc[i, 'comissao']
                 datag = excel.loc[i, 'data']
-                dataFrame.loc[indexData] = [vendedorg, compradorg,kitg,valorg, comissaog,datag]
+                dataFrame.loc[indexData] = [vendedorg, compradorg, kitg, valorg, comissaog, datag]
                 indexData += 1
             except Exception as e:
                 print(f"Erro ao processar a linha {i} do Excel: {e}")
@@ -44,28 +43,36 @@ def upload_data_geral(path, login_atual):
             print(f"Erro ao salvar o arquivo CSV principal: {e}")
 
         # Atualizar os arquivos CSV dos vendedores
-        for v in dataFrame['vendedor']:
+        for v in dataFrame['vendedor'].unique():
             caminhos = f'./vendedores/{login_atual}/{v}/{v}-tab.csv'
             if os.path.exists(caminhos):
                 try:
-                    caminho = pd.read_csv(caminhos)
+                    vendedor_df = pd.read_csv(caminhos)
 
                     # Extrair os dados para o vendedor específico
-                    vendedor = excel.loc[excel['vendedor'] == v, 'vendedor'].values
-                    comprador = excel.loc[excel['vendedor'] == v, 'comprador'].values
-                    kit = excel.loc[excel['vendedor'] == v, 'kit'].values
-                    valor = excel.loc[excel['vendedor'] == v, 'valor'].values
-                    comissao = excel.loc[excel['vendedor'] == v, 'comissao'].values
-                    data = excel.loc[excel['vendedor'] == v, 'data'].values
+                    vendedor_data = excel[excel['vendedor'] == v]
 
-                    if len(vendedor) > 0 and len(comprador) > 0 and len(kit) > 0 and len(valor) > 0 and len(comissao) > 0 and len(data) > 0:
-                        caminho.loc[len(caminho)] = {'vendedor': vendedor[0], 'comprador': comprador[0], 'kit': kit[0],
-                                                     'valor': valor[0], 'comissao': comissao[0], 'data': data[0]}
-                        caminho.to_csv(caminhos, index=False)
+                    for _, row in vendedor_data.iterrows():
+                        vendedor_row = {
+                            'vendedor': row['vendedor'].upper(),
+                            'comprador': row['comprador'],
+                            'kit': row['kit'],
+                            'valor': row['valor'],
+                            'comissao': row['comissao'],
+                            'data': row['data']
+                        }
+                        vendedor_df = vendedor_df.append(vendedor_row, ignore_index=True)
+
+                    # Salvar o DataFrame atualizado no arquivo CSV do vendedor
+                    vendedor_df.to_csv(caminhos, index=False)
+
                 except Exception as e:
                     print(f"Erro ao atualizar o arquivo {caminhos}: {e}")
     else:
-        print('Arquivo Não Existe')
+        print('Arquivo Excel Não Existe')
+
+    # Exemplo de chamada da função
+
 def upload_data_singular(path, login_atual, vendedor_atual):
     xlsx = path[0]
     if os.path.exists(xlsx):

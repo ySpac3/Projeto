@@ -184,7 +184,7 @@ def menu():
             ax = fig.add_subplot(111)
             ax.patch.set_facecolor(color4)
             for i in range(len(x)):
-                ax.text(x[i], y[i], f'{y[i]}', fontsize=5, ha='center', va='bottom', color='white')
+                ax.text(x[i], y[i], f'{y[i]}', fontsize=8, ha='center', va='bottom', color='white')
             x = x
             y = y
 
@@ -463,7 +463,7 @@ def menu():
             ax = fig.add_subplot(111)
             ax.patch.set_facecolor(color4)
             for i in range(len(x)):
-                ax.text(x[i], y[i], f'{y[i]}', fontsize=5, ha='center', va='bottom', color='white')
+                ax.text(x[i], y[i], f'{y[i]}', fontsize=8, ha='center', va='bottom', color='white')
             x = x
             y = y
 
