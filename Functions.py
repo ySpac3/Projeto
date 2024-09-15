@@ -20,18 +20,19 @@ def upload_data_geral(path, login_atual):
             dataFrame = pd.read_csv(csv_path)
         else:
             # Criar um DataFrame vazio com as colunas corretas
-            dataFrame = pd.DataFrame(columns=['nome', 'vendas', 'comissao', 'valor'])
+            dataFrame = pd.DataFrame(columns=['vendedor', 'comprador', 'kit', 'valor', 'comissao', 'data'])
 
         # Atualizar o DataFrame principal com os dados do Excel
         indexData = len(dataFrame)
         for i in range(len(excel)):
             try:
-                vendasg = excel.loc[i, 'vendas']
-                comissaog = excel.loc[i, 'comissao']
+                vendedorg = excel.loc[i, 'vendedor']
+                compradorg = excel.loc[i, 'comprador']
+                kitg = excel.loc[i, 'kit']
                 valorg = excel.loc[i, 'valor']
-                nomeg = excel.loc[i, 'nome']
-
-                dataFrame.loc[indexData] = [nomeg, vendasg, comissaog, valorg]
+                comissaog = excel.loc[i, 'comissao']
+                datag = excel.loc[i, 'data']
+                dataFrame.loc[indexData] = [vendedorg, compradorg,kitg,valorg, comissaog,datag]
                 indexData += 1
             except Exception as e:
                 print(f"Erro ao processar a linha {i} do Excel: {e}")
@@ -43,21 +44,23 @@ def upload_data_geral(path, login_atual):
             print(f"Erro ao salvar o arquivo CSV principal: {e}")
 
         # Atualizar os arquivos CSV dos vendedores
-        for v in dataFrame['nome']:
+        for v in dataFrame['vendedor']:
             caminhos = f'./vendedores/{login_atual}/{v}/{v}-tab.csv'
             if os.path.exists(caminhos):
                 try:
                     caminho = pd.read_csv(caminhos)
 
                     # Extrair os dados para o vendedor específico
-                    vendas = excel.loc[excel['nome'] == v, 'vendas'].values
-                    comissao = excel.loc[excel['nome'] == v, 'comissao'].values
-                    valor = excel.loc[excel['nome'] == v, 'valor'].values
-                    nome = excel.loc[excel['nome'] == v, 'nome'].values
+                    vendedor = excel.loc[excel['vendedor'] == v, 'vendedor'].values
+                    comprador = excel.loc[excel['vendedor'] == v, 'comprador'].values
+                    kit = excel.loc[excel['vendedor'] == v, 'kit'].values
+                    valor = excel.loc[excel['vendedor'] == v, 'valor'].values
+                    comissao = excel.loc[excel['vendedor'] == v, 'comissao'].values
+                    data = excel.loc[excel['vendedor'] == v, 'data'].values
 
-                    if len(vendas) > 0 and len(comissao) > 0 and len(valor) > 0 and len(nome) > 0:
-                        caminho.loc[len(caminho)] = {'nome': nome[0], 'vendas': vendas[0], 'comissao': comissao[0],
-                                                     'valor': valor[0]}
+                    if len(vendedor) > 0 and len(comprador) > 0 and len(kit) > 0 and len(valor) > 0 and len(comissao) > 0 and len(data) > 0:
+                        caminho.loc[len(caminho)] = {'vendedor': vendedor[0], 'comprador': comprador[0], 'kit': kit[0],
+                                                     'valor': valor[0], 'comissao': comissao[0], 'data': data[0]}
                         caminho.to_csv(caminhos, index=False)
                 except Exception as e:
                     print(f"Erro ao atualizar o arquivo {caminhos}: {e}")
@@ -69,18 +72,22 @@ def upload_data_singular(path, login_atual, vendedor_atual):
         excel = pd.read_excel(xlsx)
         dataFrame = pd.read_csv(f'./vendedores/{login_atual}/{vendedor_atual}/{vendedor_atual}-tab.csv')
 
-        indexData = len(dataFrame['vendas'])
+        indexData = len(dataFrame['vendedor'])
 
         for i in range(len(excel)):
-            vendas = excel.loc[i, 'vendas']
-            comissao = excel.loc[i, 'comissao']
+            vendedor = excel.loc[i, 'vendedor']
+            comprador = excel.loc[i, 'comprador']
+            kit = excel.loc[i, 'kit']
             valor = excel.loc[i, 'valor']
-            nome = excel.loc[i, 'nome']
+            comissao = excel.loc[i, 'comissao']
+            data = excel.loc[i, 'data']
 
-            dataFrame.loc[indexData, 'nome'] = nome
-            dataFrame.loc[indexData, 'vendas'] = vendas
-            dataFrame.loc[indexData, 'comissao'] = comissao
+            dataFrame.loc[indexData, 'vendedor'] = vendedor
+            dataFrame.loc[indexData, 'comprador'] = comprador
+            dataFrame.loc[indexData, 'kit'] = kit
             dataFrame.loc[indexData, 'valor'] = valor
+            dataFrame.loc[indexData, 'comissao'] = comissao
+            dataFrame.loc[indexData, 'data'] = data
 
             indexData += 1
 
@@ -88,7 +95,6 @@ def upload_data_singular(path, login_atual, vendedor_atual):
 
     else:
         print('Arquivo Não Existe')
-
 # Favor usar no login, o nome do usuário
 # Favor Invocar essa função ao se registrar
 def criarVendedores(login: str, nomeDoVendedor: str) -> None:
@@ -102,7 +108,6 @@ def criarVendedores(login: str, nomeDoVendedor: str) -> None:
         tb.write('vendedor,comprador,kit,valor,comissao,data')
     with open(f'./vendedores/{login}/{login}-tab.csv', 'a') as tb:
         tb.write(f'\n{nomeDoVendedor},NONE,NONE,{0},{0},{0}')
-
 def deletarVendedores(login: str, nomeDoVendedor: str) -> None:
     # Erro de Indentação, Você Usou dois TABs
     #Isso serve para remover os registros do vendedor deletado das tabelas"
@@ -110,7 +115,6 @@ def deletarVendedores(login: str, nomeDoVendedor: str) -> None:
     db = db[db['vendedor'] != f'{nomeDoVendedor}']
     db.to_csv(f'./vendedores/{login}/{login}-tab.csv', index=False)
     shutil.rmtree(f'./vendedores/{login}/{nomeDoVendedor}')
-
 # Função que retorn a tabela do vendedor
 def queryVendedores(login: str, nomeDoVendedor: str) -> pd.DataFrame:
     login = login.replace(' ', '-')
@@ -131,7 +135,6 @@ def verificarEmail(email: str) -> bool:
         return True
 
     return False
-
 
 def Comissao(df) -> float:
     valorTotal = 0
@@ -157,7 +160,6 @@ def vendasKit(df) -> dict:
             dictKits[kit] += 1
 
     return dictKits
-
 def valorVendas(df) -> float:
     dtf = df
     total = 0
@@ -168,7 +170,6 @@ def valorVendas(df) -> float:
     except:
         total = 0
     return total
-
 def separadoPorMes(login: str, vendedor: str, mes: int) -> pd.DataFrame:
     dtf = pd.read_csv(f'./vendedores/{login}/{vendedor}/{vendedor}-tab.csv')
     dtfMes = pd.DataFrame()
@@ -176,7 +177,8 @@ def separadoPorMes(login: str, vendedor: str, mes: int) -> pd.DataFrame:
     indexFilter = 0
     for i in range(len(dtf['data'])):
         if mes > 0 and mes < 10:
-            if f'/0{mes}/' in str(dtf.loc[i, 'data']):
+
+            if f'-0{mes}-' in str(dtf.loc[i, 'data']):
                 dtfMes.loc[indexFilter, 'vendedor'] = dtf.loc[i, 'vendedor']
                 dtfMes.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
                 dtfMes.loc[indexFilter, 'comprador'] = dtf.loc[i, 'comprador']
@@ -202,7 +204,7 @@ def separadoPorMesGeral(login: str, mes: str) -> pd.DataFrame:
     indexFilter = 0
     for i in range(len(dtf['data'])):
         if mes > 0 and mes < 10:
-            if f'/0{mes}/' in str(dtf.loc[i, 'data']):
+            if f'-0{mes}-' in str(dtf.loc[i, 'data']):
                 dtfMes.loc[indexFilter, 'vendedor'] = dtf.loc[i, 'vendedor']
                 dtfMes.loc[indexFilter, 'kit'] = dtf.loc[i, 'kit']
                 dtfMes.loc[indexFilter, 'comprador'] = dtf.loc[i, 'comprador']

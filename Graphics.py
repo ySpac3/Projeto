@@ -149,6 +149,15 @@ class login_UI:
             return self.users, self.passwords, self.email
 
 def menu():
+
+    color1='#383838'
+    color2='#5c5c5c'
+    color3='#3e3e3e'
+    color4='#212121'
+
+
+
+
     dataFrame = pd.read_csv(f'./vendedores/{Login_atual}/{Login_atual}-tab.csv')
 
     click = False
@@ -170,10 +179,10 @@ def menu():
 
         def criargráfico(x, y, master, column, row, name: str):
             fig = mtp.Figure(figsize=(3.5, 3), dpi=100)
-            fig.patch.set_facecolor('#574d6f')
+            fig.patch.set_facecolor(color4)
             fig.subplots_adjust(left=0.2, right=0.9, top=0.9, bottom=0.1)
             ax = fig.add_subplot(111)
-            ax.patch.set_facecolor('#574d6f')
+            ax.patch.set_facecolor(color4)
             for i in range(len(x)):
                 ax.text(x[i], y[i], f'{y[i]}', fontsize=5, ha='center', va='bottom', color='white')
             x = x
@@ -190,7 +199,7 @@ def menu():
             canvas = FigureCanvasTkAgg(fig, master=master)
             canvas.draw()
             canvas_widget = canvas.get_tk_widget()
-            canvas_widget.grid(column=column, row=row, sticky='w')
+            canvas_widget.grid(column=column, row=row, sticky='')
 
 
         for i in frame_1.winfo_children():
@@ -199,7 +208,7 @@ def menu():
         frame_1.grid_columnconfigure(0, weight=1)
 
         frame_principal = ctk.CTkScrollableFrame(frame_1, fg_color='transparent', width=1000, height=330)
-        frame_principal.grid(row=1, column=0, sticky='sew')
+        frame_principal.grid(row=1, column=0, sticky='sew', rowspan=2)
 
         second_frame = ctk.CTkFrame(frame_1, width=200, height=200, fg_color='transparent')
         second_frame.grid(row=0, column=0, pady=80, sticky='nsew')
@@ -209,16 +218,16 @@ def menu():
             frame_principal.grid_columnconfigure(i, weight=1)
         # Configurando tópicos
         for i, v in enumerate(['VENDEDOR', 'COMPRADOR', 'KIT', 'VALOR', 'COMISSAO','DATA']):
-            sell = ctk.CTkLabel(frame_principal,fg_color='#433c68',corner_radius=30,  text=v, font=('Arial', 24))
+            sell = ctk.CTkLabel(frame_principal,fg_color=color3,corner_radius=30,  text=v, font=('Arial', 24))
             sell.grid(row=0, column=i, pady=10, padx=10, sticky='ew')
             # Configurando valores dos Tópicos
         for i in range(0, len(dataFrame)):
             for p, v in enumerate(['vendedor', 'comprador', 'kit', 'valor', 'comissao','data']):
                 if v != 'comissao':
-                    lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, v]}", fg_color='#433c68', corner_radius=30,font=('Arial', 28))
+                    lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, v]}", fg_color=color3, corner_radius=30,font=('Arial', 28))
                     lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
                 else:
-                    lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, 'valor'] * dataFrame.loc[i, 'comissao']}", fg_color='#433c68',
+                    lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, 'valor'] * dataFrame.loc[i, 'comissao']}", fg_color=color3,
                                             corner_radius=30, font=('Arial', 28))
                     lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
 
@@ -254,6 +263,35 @@ def menu():
         global vendedor_atual
 
         dataFrame = pd.read_csv(f'./vendedores/{Login_atual}/{Login_atual}-tab.csv')
+
+        # Criar uma lista para armazenar os dados
+        data_to_add = []
+
+        # Iterar sobre as linhas do DataFrame principal
+        for index, row in dataFrame.iterrows():
+            vendedor = row['vendedor']
+
+            # Caminho para o arquivo CSV do vendedor
+            file_path = f'./vendedores/{Login_atual}/{vendedor}/{vendedor}-tab.csv'
+
+            # Verificar se o arquivo existe
+            if os.path.exists(file_path):
+                # Adicionar a linha do DataFrame principal à lista
+                vendedor_row = {
+                    'vendedor': vendedor,
+                    'comprador': row['comprador'],  # Assumindo que 'comprador' está presente no DataFrame principal
+                    'kit': row['kit'],  # Assumindo que 'kit' está presente no DataFrame principal
+                    'valor': row['valor'],  # Assumindo que 'valor' está presente no DataFrame principal
+                    'comissao': row['comissao'],  # Assumindo que 'comissao' está presente no DataFrame principal
+                    'data': row['data']  # Assumindo que 'data' está presente no DataFrame principal
+                }
+
+                # Adiciona a linha à lista
+                data_to_add.append(vendedor_row)
+        # Criar o DataFrame final usando pd.concat()
+        db = pd.DataFrame(columns=['vendedor', 'comprador', 'kit', 'valor', 'comissao', 'data'])
+        db = pd.concat([db, pd.DataFrame(data_to_add)], ignore_index=True)
+
         vendedor_db = F.queryVendedores(Login_atual,vendedor_atual)
 
         def vendedor_list(Vendedor_atual):
@@ -266,11 +304,11 @@ def menu():
 
             for i in frame_1.winfo_children():
                 i.destroy()
-            second_frame = ctk.CTkFrame(frame_1, width=200, height=200, fg_color='transparent', border_color='#b0a4a4',
+            second_frame = ctk.CTkFrame(frame_1, width=200, height=200, fg_color='transparent', border_color=color3,
                                         border_width=3, )
             second_frame.grid(row=0, column=0, pady=80)
             dnd_label = ctk.CTkLabel(second_frame, text='Arraste seus arquivos arquivo .xlsx aqui',
-                                     bg_color='transparent', text_color='#b0a4a4', font=('Arial', 24))
+                                     bg_color='transparent', text_color=color3, font=('Arial', 24))
             dnd_label.grid(row=0, column=0, pady=80)
             # Configurando para o second frame virar um drag and drop e ficar visivel
             dndfiles(second_frame, singular=True)
@@ -287,13 +325,13 @@ def menu():
             for i in range(0, len(vendedor_db)):
                 for p, v in enumerate(['vendedor', 'comprador', 'kit', 'valor', 'comissao', 'data']):
                     if v != 'comissao':
-                        lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, v]}", fg_color='#433c68',
+                        lastsell = ctk.CTkLabel(frame_vendedor_xlsx, text=f"{dataFrame.loc[i, v]}", fg_color=color3,
                                                 corner_radius=30, font=('Arial', 28))
                         lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
                     else:
-                        lastsell = ctk.CTkLabel(frame_principal,
+                        lastsell = ctk.CTkLabel(frame_vendedor_xlsx,
                                                 text=f"{dataFrame.loc[i, 'valor'] * dataFrame.loc[i, 'comissao']}",
-                                                fg_color='#433c68',
+                                                fg_color=color3,
                                                 corner_radius=30, font=('Arial', 28))
                         lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
 
@@ -309,24 +347,24 @@ def menu():
             frame_principal.grid_columnconfigure(i, weight=1)
         #Criando botões de vendedores
         vendedores_existentes = []
-        for i, v in enumerate(dataFrame['vendedor']):
+        for i, v in enumerate(db['vendedor']):
             if v not in vendedores_existentes:
                 vendedores_existentes.append(v)
                 btn_vendedor = ctk.CTkButton(frame_principal,
                                              width=700,
                                              height=20,
-                                             command=lambda i=i: vendedor_list(dataFrame.loc[i, 'vendedor']),
+                                             command=lambda i=i: vendedor_list(db.loc[i, 'vendedor']),
                                              text=v,
                                              font=('Arial', 24),
                                              border_spacing=17,
                                              corner_radius=100,
-                                             fg_color='#433c68',
+                                             fg_color=color3,
                                              )
                 btn_vendedor.grid(row=i, column=1, sticky='n', columnspan=2, pady=5)
 
-        second_frame = ctk.CTkFrame(frame_1, width=200, height=200,fg_color='transparent', border_color='#b0a4a4', border_width=3,)
+        second_frame = ctk.CTkFrame(frame_1, width=200, height=200,fg_color='transparent', border_color=color3, border_width=3,)
         second_frame.grid(row=0, column=0, pady=80)
-        dnd_label = ctk.CTkLabel(second_frame,text='Arraste seus arquivos arquivo .xlsx aqui',font=('Arial',24), bg_color='transparent', text_color='#b0a4a4')
+        dnd_label = ctk.CTkLabel(second_frame,text='Arraste seus arquivos arquivo .xlsx aqui',font=('Arial',24), bg_color='transparent', text_color=color3)
         dnd_label.grid(row=0, column=0, pady=80)
         #Configurando para o second frame virar um drag and drop e ficar visivel
         dndfiles(second_frame, singular=False)
@@ -340,6 +378,35 @@ def menu():
         global vendedor_atual
 
         dataFrame = pd.read_csv(f'./vendedores/{Login_atual}/{Login_atual}-tab.csv')
+
+        # Criar uma lista para armazenar os dados
+        data_to_add = []
+
+        # Iterar sobre as linhas do DataFrame principal
+        for index, row in dataFrame.iterrows():
+            vendedor = row['vendedor']
+
+            # Caminho para o arquivo CSV do vendedor
+            file_path = f'./vendedores/{Login_atual}/{vendedor}/{vendedor}-tab.csv'
+
+            # Verificar se o arquivo existe
+            if os.path.exists(file_path):
+                # Adicionar a linha do DataFrame principal à lista
+                vendedor_row = {
+                    'vendedor': vendedor,
+                    'comprador': row['comprador'],  # Assumindo que 'comprador' está presente no DataFrame principal
+                    'kit': row['kit'],  # Assumindo que 'kit' está presente no DataFrame principal
+                    'valor': row['valor'],  # Assumindo que 'valor' está presente no DataFrame principal
+                    'comissao': row['comissao'],  # Assumindo que 'comissao' está presente no DataFrame principal
+                    'data': row['data']  # Assumindo que 'data' está presente no DataFrame principal
+                }
+
+                # Adiciona a linha à lista
+                data_to_add.append(vendedor_row)
+        # Criar o DataFrame final usando pd.concat()
+        db = pd.DataFrame(columns=['vendedor', 'comprador', 'kit', 'valor', 'comissao', 'data'])
+        db = pd.concat([db, pd.DataFrame(data_to_add)], ignore_index=True)
+
         vendedor_db = F.queryVendedores(Login_atual,vendedor_atual)
 
         def Cadastrar():
@@ -376,26 +443,25 @@ def menu():
             nonlocal frame_1
 
             for i in frame_1.winfo_children():
-                if i != btn_reload:
-                    i.destroy()
+                i.destroy()
             frame_1.grid_rowconfigure(0,weight=1)
             frame_1.grid_columnconfigure(0,weight=1)
-            frame_principal = ctk.CTkScrollableFrame(frame_1, fg_color='purple')
+            frame_principal = ctk.CTkScrollableFrame(frame_1, fg_color='transparent')
             frame_principal.grid(row=0, column=0, sticky='nsew',rowspan=2)
             frame_principal.grid_columnconfigure(0, weight=1)
             vendedores_existentes = []
             for i, v in enumerate(dataFrame['vendedor']):
                 if v not in vendedores_existentes:
                     vendedores_existentes.append(v)
-                    btn_vendedor = ctk.CTkButton(frame_principal, width=1100, height=20,
+                    btn_vendedor = ctk.CTkButton(frame_principal, width=1100, height=20,fg_color=color3,
                                                  command=lambda i=i: Delete_confirm(dataFrame.loc[i, 'vendedor']), text=v)
                     btn_vendedor.grid(row=i, column=0, sticky='new')
         def criargráfico(x, y, master, column, row, name: str):
             fig = mtp.Figure(figsize=(3.5, 3), dpi=100)
-            fig.patch.set_facecolor('#574d6f')
+            fig.patch.set_facecolor(color4)
             fig.subplots_adjust(left=0.2, right=0.9, top=0.9, bottom=0.1)
             ax = fig.add_subplot(111)
-            ax.patch.set_facecolor('#574d6f')
+            ax.patch.set_facecolor(color4)
             for i in range(len(x)):
                 ax.text(x[i], y[i], f'{y[i]}', fontsize=5, ha='center', va='bottom', color='white')
             x = x
@@ -424,6 +490,7 @@ def menu():
 
             for i in frame_1.winfo_children():
                 i.destroy()
+
             second_frame = ctk.CTkFrame(frame_1, width=200, height=200, fg_color='transparent',)
             second_frame.grid(row=0, column=0, pady=80)
 
@@ -440,13 +507,13 @@ def menu():
             for i in range(0, len(vendedor_db)):
                 for p, v in enumerate(['vendedor', 'comprador', 'kit', 'valor', 'comissao', 'data']):
                     if v != 'comissao':
-                        lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, v]}", fg_color='#433c68',
+                        lastsell = ctk.CTkLabel(frame_vendedor_xlsx, text=f"{vendedor_db.loc[i, v]}", fg_color=color3,
                                                 corner_radius=30, font=('Arial', 28))
                         lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
                     else:
-                        lastsell = ctk.CTkLabel(frame_principal,
-                                                text=f"{dataFrame.loc[i, 'valor'] * dataFrame.loc[i, 'comissao']}",
-                                                fg_color='#433c68',
+                        lastsell = ctk.CTkLabel(frame_vendedor_xlsx,
+                                                text=f"{vendedor_db.loc[i, 'valor'] * vendedor_db.loc[i, 'comissao']}",
+                                                fg_color=color3,
                                                 corner_radius=30, font=('Arial', 28))
                         lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
             valorvendas = []
@@ -490,18 +557,18 @@ def menu():
             frame_principal.grid_columnconfigure(i, weight=1)
         #Criando botões de vendedores
         vendedores_existentes = []
-        for i, v in enumerate(dataFrame['vendedor']):
+        for i, v in enumerate(db['vendedor']):
             if v not in vendedores_existentes:
                 vendedores_existentes.append(v)
                 btn_vendedor = ctk.CTkButton(frame_principal,
                                              width=700,
                                              height=20,
-                                             command=lambda i=i: vendedor_list(dataFrame.loc[i, 'vendedor']),
+                                             command=lambda i=i: vendedor_list(db.loc[i, 'vendedor']),
                                              text=v,
                                              font=('Arial', 24),
                                              border_spacing=5,
                                              corner_radius=100,
-                                             fg_color='#433c68',
+                                             fg_color=color3,
                                              )
                 btn_vendedor.grid(row=i, column=1, sticky='n', columnspan=2, pady=5)
 
@@ -533,9 +600,9 @@ def menu():
         lucro = criargráfico(['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
                              valorlucro, second_frame, 2, 0, name='Lucro')
 
-        btn_cadastrar = ctk.CTkButton(frame_1, text='Cadastrar Vendedor', command=Cadastrar, fg_color='#433c68')
+        btn_cadastrar = ctk.CTkButton(frame_1, text='Cadastrar Vendedor', command=Cadastrar, fg_color=color3)
         btn_cadastrar.grid(column=0, row=1, sticky='w', padx=400)
-        btn_deletar = ctk.CTkButton(frame_1, text='Deletar', command=Deletar, fg_color='#433c68')
+        btn_deletar = ctk.CTkButton(frame_1, text='Deletar', command=Deletar, fg_color=color3)
         btn_deletar.grid(column=0, row=1, sticky='e', padx=400)
 
 
@@ -543,7 +610,7 @@ def menu():
 
 
     menu = TkinterDnD.Tk()
-    menu.configure(bg='#574d6f')
+    menu.configure(bg=color4)
     menu.geometry('1280x720')
 
     menu.grid_rowconfigure(0, weight=1)
@@ -560,7 +627,7 @@ def menu():
 
 
     #Criando Frame de botões de menu
-    btn_frame = ctk.CTkFrame(menu, fg_color='#3a3053', width=200)
+    btn_frame = ctk.CTkFrame(menu, fg_color=color3, width=200)
     btn_frame.grid(row=0, column=0, sticky='nsew', rowspan=2)
     btn_frame.grid_columnconfigure(0,weight=1)
 
@@ -571,10 +638,6 @@ def menu():
     btn_upload.grid(row=1, column=0, sticky='ew', ipady=10,)
     btn_vendedores = ctk.CTkButton(btn_frame, fg_color='transparent', text='Vendedores', font=('Arial', 24), command=Vendedor)
     btn_vendedores.grid(row=2, column=0, sticky='ew', ipady=10)
-
-    #botão debug
-    btn_debug = ctk.CTkButton(btn_frame,fg_color='transparent', text='DEBUG', command=DEBUG)
-    btn_debug.grid(row=3, column=0)
 
     menu.grid_rowconfigure(1, weight=0)
     menu.grid_columnconfigure(0, weight=1)
