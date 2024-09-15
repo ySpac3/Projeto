@@ -9,7 +9,8 @@ import verificacao as SQLInjection
 import os
 import Functions as F
 from PIL import Image, ImageTk
-
+import matplotlib.pyplot as mtp
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 Login_atual = ''
 vendedor_atual = ''
@@ -160,13 +161,49 @@ def menu():
         nonlocal frame_1
         global funçao
         funçao = Principal
+        nonlocal dataFrame
+        global vendedor_db
+        global vendedor_atual
+
+        dataFrame = pd.read_csv(f'./vendedores/{Login_atual}/{Login_atual}-tab.csv')
+        vendedor_db = F.queryVendedores(Login_atual,vendedor_atual)
+
+        def criargráfico(x, y, master, column, row, name: str):
+            fig = mtp.Figure(figsize=(3.5, 3), dpi=100)
+            fig.patch.set_facecolor('#574d6f')
+            fig.subplots_adjust(left=0.2, right=0.9, top=0.9, bottom=0.1)
+            ax = fig.add_subplot(111)
+            ax.patch.set_facecolor('#574d6f')
+            for i in range(len(x)):
+                ax.text(x[i], y[i], f'{y[i]}', fontsize=5, ha='center', va='bottom', color='white')
+            x = x
+            y = y
+
+            ax.plot(x, y)
+            ax.set_title(name, color='white')
+            ax.tick_params(axis='x', labelsize=6, colors='white')
+            ax.tick_params(axis='y', colors='white')
+            ax.grid(linestyle='--',linewidth=0.3)
+            for spine in ax.spines.values():
+                spine.set_edgecolor('none')
+
+            canvas = FigureCanvasTkAgg(fig, master=master)
+            canvas.draw()
+            canvas_widget = canvas.get_tk_widget()
+            canvas_widget.grid(column=column, row=row, sticky='w')
+
+
         for i in frame_1.winfo_children():
-            if i != btn_reload:
-                i.destroy()
+            i.destroy()
         frame_1.grid_rowconfigure(0, weight=1)
         frame_1.grid_columnconfigure(0, weight=1)
+
         frame_principal = ctk.CTkScrollableFrame(frame_1, fg_color='transparent', width=1000, height=330)
         frame_principal.grid(row=1, column=0, sticky='sew')
+
+        second_frame = ctk.CTkFrame(frame_1, width=200, height=200, fg_color='transparent')
+        second_frame.grid(row=0, column=0, pady=80, sticky='nsew')
+        second_frame.grid_rowconfigure(0,weight=1)
         # Configurando as colunas do frame
         for i in range(0, 4):
             frame_principal.grid_columnconfigure(i, weight=1)
@@ -177,12 +214,47 @@ def menu():
             # Configurando valores dos Tópicos
         for i in range(0, len(dataFrame)):
             for p, v in enumerate(['vendedor', 'comprador', 'kit', 'valor', 'comissao','data']):
-                lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, v]}", fg_color='#433c68', corner_radius=30,font=('Arial', 28))
-                lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
+                if v != 'comissao':
+                    lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, v]}", fg_color='#433c68', corner_radius=30,font=('Arial', 28))
+                    lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
+                else:
+                    lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, 'valor'] * dataFrame.loc[i, 'comissao']}", fg_color='#433c68',
+                                            corner_radius=30, font=('Arial', 28))
+                    lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
 
+        # Pegando dados de vendas no mês geral e colocando em um gráfico
+        valorvendas = []
+        valorcomissao = []
+        valorlucro = []
+        for mes in range(1, 13):
+            dtf = F.separadoPorMesGeral(Login_atual, mes)
+            valor = F.Comissao(dtf)
+            valorcomissao.append(valor)
+
+        for mes in range(1, 13):
+            dtf = F.separadoPorMesGeral(Login_atual, mes)
+            valor = F.valorVendas(dtf)
+            valorvendas.append(valor)
+
+        for mes in range(1, 13):
+            valorlucro.append(valorvendas[mes-1] - valorcomissao[mes-1])
+
+        vendas = criargráfico(['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                              valorvendas, second_frame, 0, 0, name='Vendas')
+        comissoes = criargráfico(['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                                 valorcomissao,second_frame, 1, 0, name='Comissões')
+        lucro = criargráfico(['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                               valorlucro,second_frame,2,0, name='Lucro')
     def Upload():
         global funçao
         funçao = Upload
+        nonlocal frame_1
+        nonlocal dataFrame
+        global vendedor_db
+        global vendedor_atual
+
+        dataFrame = pd.read_csv(f'./vendedores/{Login_atual}/{Login_atual}-tab.csv')
+        vendedor_db = F.queryVendedores(Login_atual,vendedor_atual)
 
         def vendedor_list(Vendedor_atual):
             nonlocal frame_1
@@ -193,8 +265,7 @@ def menu():
             vendedor_atual = Vendedor_atual
 
             for i in frame_1.winfo_children():
-                if i != btn_reload:
-                    i.destroy()
+                i.destroy()
             second_frame = ctk.CTkFrame(frame_1, width=200, height=200, fg_color='transparent', border_color='#b0a4a4',
                                         border_width=3, )
             second_frame.grid(row=0, column=0, pady=80)
@@ -215,13 +286,20 @@ def menu():
             vendedor_db = F.queryVendedores(Login_atual, vendedor_atual)
             for i in range(0, len(vendedor_db)):
                 for p, v in enumerate(['vendedor', 'comprador', 'kit', 'valor', 'comissao', 'data']):
-                    lastsell = ctk.CTkLabel(frame_vendedor_xlsx, text=f"{vendedor_db.loc[i, v]}", font=('Arial', 28))
-                    lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
-        nonlocal frame_1
+                    if v != 'comissao':
+                        lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, v]}", fg_color='#433c68',
+                                                corner_radius=30, font=('Arial', 28))
+                        lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
+                    else:
+                        lastsell = ctk.CTkLabel(frame_principal,
+                                                text=f"{dataFrame.loc[i, 'valor'] * dataFrame.loc[i, 'comissao']}",
+                                                fg_color='#433c68',
+                                                corner_radius=30, font=('Arial', 28))
+                        lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
+
 
         for i in frame_1.winfo_children():
-            if i != btn_reload:
-                i.destroy()
+            i.destroy()
 
         frame_principal = ctk.CTkScrollableFrame(frame_1, fg_color='transparent', width=100, height=330)
         frame_principal.grid(row=1, column=0, sticky='sew')
@@ -255,7 +333,15 @@ def menu():
     def Vendedor():
         nonlocal frame_1
         global funçao
+        global funçao
         funçao = Vendedor
+        nonlocal dataFrame
+        global vendedor_db
+        global vendedor_atual
+
+        dataFrame = pd.read_csv(f'./vendedores/{Login_atual}/{Login_atual}-tab.csv')
+        vendedor_db = F.queryVendedores(Login_atual,vendedor_atual)
+
         def Cadastrar():
             nonlocal frame_1
 
@@ -265,20 +351,17 @@ def menu():
                 Principal()
 
             for i in frame_1.winfo_children():
-                if i != btn_reload:
-                    i.destroy()
-            frame_1.grid_rowconfigure(0,weight=0)
-            frame_1.grid_rowconfigure(1, weight=0)
+                i.destroy()
+            frame_1.grid_rowconfigure(0, weight=1, minsize=360)
+            frame_1.grid_rowconfigure(1, weight=0,minsize=360)
             frame_1.grid_rowconfigure(2, weight=0)
             frame_1.grid_columnconfigure(0,weight=1)
 
-
-            spacer = ctk.CTkLabel(frame_1, text="", height=200)  # Define a altura do espaçamento
-            spacer.grid(row=1, column=0, sticky='ew')
             nome_vendedor = ctk.CTkEntry(frame_1, placeholder_text='Nome do Vendedor')
-            nome_vendedor.grid(row=2, column=0, sticky='')
+            nome_vendedor.grid(row=0, column=0, sticky='s',pady=5)
             btn_vendcadastrar = ctk.CTkButton(frame_1, text='Cadastrar', command=cadastro)
-            btn_vendcadastrar.grid(row=3, column=0, sticky='')
+            btn_vendcadastrar.grid(row=1, column=0, sticky='n',pady=5)
+
         def Deletar():
             def Delete_confirm(Vendedor_Atual):
                 nonlocal frame_1
@@ -286,8 +369,7 @@ def menu():
                     F.deletarVendedores(Login_atual,vendedor)
                     Vendedor()
                 for i in frame_1.winfo_children():
-                    if i != btn_reload:
-                        i.destroy()
+                    i.destroy()
                 btn_confirm = ctk.CTkButton(frame_1, text=f'Deletar {Vendedor_Atual}?', command=lambda: Delete(Vendedor_Atual))
                 btn_confirm.grid(row=0, column=0, sticky='')
 
@@ -299,7 +381,7 @@ def menu():
             frame_1.grid_rowconfigure(0,weight=1)
             frame_1.grid_columnconfigure(0,weight=1)
             frame_principal = ctk.CTkScrollableFrame(frame_1, fg_color='purple')
-            frame_principal.grid(row=0, column=0, sticky='nsew')
+            frame_principal.grid(row=0, column=0, sticky='nsew',rowspan=2)
             frame_principal.grid_columnconfigure(0, weight=1)
             vendedores_existentes = []
             for i, v in enumerate(dataFrame['vendedor']):
@@ -308,26 +390,155 @@ def menu():
                     btn_vendedor = ctk.CTkButton(frame_principal, width=1100, height=20,
                                                  command=lambda i=i: Delete_confirm(dataFrame.loc[i, 'vendedor']), text=v)
                     btn_vendedor.grid(row=i, column=0, sticky='new')
+        def criargráfico(x, y, master, column, row, name: str):
+            fig = mtp.Figure(figsize=(3.5, 3), dpi=100)
+            fig.patch.set_facecolor('#574d6f')
+            fig.subplots_adjust(left=0.2, right=0.9, top=0.9, bottom=0.1)
+            ax = fig.add_subplot(111)
+            ax.patch.set_facecolor('#574d6f')
+            for i in range(len(x)):
+                ax.text(x[i], y[i], f'{y[i]}', fontsize=5, ha='center', va='bottom', color='white')
+            x = x
+            y = y
 
-        frame_1.grid_rowconfigure(0,weight=0)
-        frame_1.grid_rowconfigure(1, weight=0)
+            ax.plot(x, y)
+            ax.set_title(name, color='white')
+            ax.tick_params(axis='x', labelsize=6, colors='white')
+            ax.tick_params(axis='y', colors='white')
+            ax.grid(linestyle='--',linewidth=0.3)
+            for spine in ax.spines.values():
+                spine.set_edgecolor('none')
 
+            canvas = FigureCanvasTkAgg(fig, master=master)
+            canvas.draw()
+            canvas_widget = canvas.get_tk_widget()
+            canvas_widget.grid(column=column, row=row, sticky='nsew')
+
+        def vendedor_list(Vendedor_atual):
+            nonlocal frame_1
+            nonlocal second_frame
+            global vendedor_atual
+            global vendedor_db
+
+            vendedor_atual = Vendedor_atual
+
+            for i in frame_1.winfo_children():
+                i.destroy()
+            second_frame = ctk.CTkFrame(frame_1, width=200, height=200, fg_color='transparent',)
+            second_frame.grid(row=0, column=0, pady=80)
+
+            frame_1.grid_rowconfigure(1,weight=1)
+            frame_1.grid_columnconfigure(0,weight=1)
+            frame_vendedor_xlsx = ctk.CTkScrollableFrame(frame_1, width=1000, height=330, fg_color='transparent',)
+            frame_vendedor_xlsx.grid(row=1, column=0, sticky='sew', columnspan=2)
+            for i, v in enumerate(['VENDEDOR', 'COMPRADOR', 'KIT', 'VALOR', 'COMISSAO', 'DATA']):
+                sell = ctk.CTkLabel(frame_vendedor_xlsx, text=v, font=('Arial', 24))
+                frame_vendedor_xlsx.grid_columnconfigure(i,weight=1)
+                sell.grid(row=0, column=i, pady=10, padx=10, sticky='new')
+            # Configurando valores dos Tópicos
+            vendedor_db = F.queryVendedores(Login_atual, vendedor_atual)
+            for i in range(0, len(vendedor_db)):
+                for p, v in enumerate(['vendedor', 'comprador', 'kit', 'valor', 'comissao', 'data']):
+                    if v != 'comissao':
+                        lastsell = ctk.CTkLabel(frame_principal, text=f"{dataFrame.loc[i, v]}", fg_color='#433c68',
+                                                corner_radius=30, font=('Arial', 28))
+                        lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
+                    else:
+                        lastsell = ctk.CTkLabel(frame_principal,
+                                                text=f"{dataFrame.loc[i, 'valor'] * dataFrame.loc[i, 'comissao']}",
+                                                fg_color='#433c68',
+                                                corner_radius=30, font=('Arial', 28))
+                        lastsell.grid(column=p, row=i + 1, pady=10, padx=10, sticky='ew')
+            valorvendas = []
+            valorcomissao = []
+            valorlucro = []
+            for mes in range(1, 13):
+                dtf = F.separadoPorMes(Login_atual,vendedor_atual, mes)
+                valor = F.Comissao(dtf)
+                valorcomissao.append(valor)
+
+            for mes in range(1, 13):
+                dtf = F.separadoPorMes(Login_atual,vendedor_atual, mes)
+                valor = F.valorVendas(dtf)
+                valorvendas.append(valor)
+
+            for mes in range(1, 13):
+                valorlucro.append(valorvendas[mes - 1] - valorcomissao[mes - 1])
+
+            vendas = criargráfico(['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                                  valorvendas, second_frame, 0, 0, name='Vendas')
+            comissoes = criargráfico(
+                ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                valorcomissao, second_frame, 1, 0, name='Comissões')
+            lucro = criargráfico(['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                                 valorlucro, second_frame, 2, 0, name='Lucro')
+
+        nonlocal frame_1
 
         for i in frame_1.winfo_children():
-            if i != btn_reload:
-                i.destroy()
-        btn_cadastrar = ctk.CTkButton(frame_1, text='Cadastrar Vendedor', command=Cadastrar)
-        btn_cadastrar.grid(column=0, row=0, sticky='', pady=60)
-        btn_deletar = ctk.CTkButton(frame_1, text='Deletar', command=Deletar)
-        btn_deletar.grid(column=0, row=1, sticky='', pady=60)
-    def Atualizar():
-        nonlocal dataFrame
-        global vendedor_db
-        global vendedor_atual
+            i.destroy()
 
-        dataFrame = pd.read_csv(f'./vendedores/{Login_atual}/{Login_atual}-tab.csv')
-        vendedor_db = F.queryVendedores(Login_atual,vendedor_atual)
-        funçao()
+        frame_1.grid_rowconfigure(0, weight=1,minsize=450)
+        frame_1.grid_rowconfigure(1, weight=1, minsize=30)
+        frame_1.grid_rowconfigure(2, weight=1,minsize=100)
+
+        frame_principal = ctk.CTkScrollableFrame(frame_1, fg_color='transparent', width=100, height=260)
+        frame_principal.grid(row=2, column=0, sticky='sew')
+        frame_principal.grid_columnconfigure(0,weight=1)
+        # Configurando as colunas do frame
+        for i in range(0, 4):
+            frame_principal.grid_columnconfigure(i, weight=1)
+        #Criando botões de vendedores
+        vendedores_existentes = []
+        for i, v in enumerate(dataFrame['vendedor']):
+            if v not in vendedores_existentes:
+                vendedores_existentes.append(v)
+                btn_vendedor = ctk.CTkButton(frame_principal,
+                                             width=700,
+                                             height=20,
+                                             command=lambda i=i: vendedor_list(dataFrame.loc[i, 'vendedor']),
+                                             text=v,
+                                             font=('Arial', 24),
+                                             border_spacing=5,
+                                             corner_radius=100,
+                                             fg_color='#433c68',
+                                             )
+                btn_vendedor.grid(row=i, column=1, sticky='n', columnspan=2, pady=5)
+
+
+        second_frame = ctk.CTkFrame(frame_1, width=200, height=200,fg_color='transparent')
+        second_frame.grid(row=0, column=0, pady=80)
+
+        # Pegando dados de vendas no mês geral e colocando em um gráfico
+        valorvendas = []
+        valorcomissao = []
+        valorlucro = []
+        for mes in range(1, 13):
+            dtf = F.separadoPorMesGeral(Login_atual, mes)
+            valor = F.Comissao(dtf)
+            valorcomissao.append(valor)
+
+        for mes in range(1, 13):
+            dtf = F.separadoPorMesGeral(Login_atual, mes)
+            valor = F.valorVendas(dtf)
+            valorvendas.append(valor)
+
+        for mes in range(1, 13):
+            valorlucro.append(valorvendas[mes - 1] - valorcomissao[mes - 1])
+
+        vendas = criargráfico(['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                              valorvendas, second_frame, 0, 0, name='Vendas')
+        comissoes = criargráfico(['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                                 valorcomissao, second_frame, 1, 0, name='Comissões')
+        lucro = criargráfico(['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                             valorlucro, second_frame, 2, 0, name='Lucro')
+
+        btn_cadastrar = ctk.CTkButton(frame_1, text='Cadastrar Vendedor', command=Cadastrar, fg_color='#433c68')
+        btn_cadastrar.grid(column=0, row=1, sticky='w', padx=400)
+        btn_deletar = ctk.CTkButton(frame_1, text='Deletar', command=Deletar, fg_color='#433c68')
+        btn_deletar.grid(column=0, row=1, sticky='e', padx=400)
+
+
 
 
 
@@ -349,7 +560,7 @@ def menu():
 
 
     #Criando Frame de botões de menu
-    btn_frame = ctk.CTkFrame(menu, fg_color='#3a3053', width=250)
+    btn_frame = ctk.CTkFrame(menu, fg_color='#3a3053', width=200)
     btn_frame.grid(row=0, column=0, sticky='nsew', rowspan=2)
     btn_frame.grid_columnconfigure(0,weight=1)
 
@@ -364,9 +575,6 @@ def menu():
     #botão debug
     btn_debug = ctk.CTkButton(btn_frame,fg_color='transparent', text='DEBUG', command=DEBUG)
     btn_debug.grid(row=3, column=0)
-
-    btn_reload = ctk.CTkButton(frame_1, text='Atualizar Pagina',command=Atualizar)
-    btn_reload.grid(row=0, column=0, sticky='ne')
 
     menu.grid_rowconfigure(1, weight=0)
     menu.grid_columnconfigure(0, weight=1)
